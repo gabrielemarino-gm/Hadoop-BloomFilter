@@ -106,33 +106,36 @@ public class BloomFilter
 
         public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException
         {
-            // context.write(key, value);  // <vote, m>
+            // Tokenize the DOC for each row
+            String record = value.toString();
+            if (record == null || record.length() == 0)
+                return;
 
-            // Tokenize the DOC for each word
-            final StringTokenizer itr = new StringTokenizer(value.toString());
-            String movieName;
-            int vote;
+            String[] row = record.trim().split("\n");
 
-            while (itr.hasMoreTokens())
+
+            for(int r=0; r<row.length; r++)
             {
-                // Check if is a vote or not, if it's not a vote continue for the next iteration.
-                String tocken = itr.nextToken().toString();
+                int MOVIE = 0;
+                int VOTE = 1;
 
-                if(tocken.startsWith("tt")) // It's means that this word is the ID of the movie
-                {
-                    movieName = tocken;
-                }
-
-                double vote_double = Double.parseDouble(tocken);
-                if (vote_double == Math.floor(vote_double) && !Double.isInfinite(vote_double) && !tocken.endsWith(".0")) // If it's integer meas that is a number of total vote, so discard it.
-                    continue;
+                // Split the row in three part: MovieName, Vote, nVote
+                String[] tocken = record.trim().split(" ");
 
                 // If we are here, it's means that we have a vote
-                vote = (int) Math.round(Double.parseDouble(tocken)); // Rounded
+                int vote = (int) Math.round(Double.parseDouble(tocken[VOTE])); // Rounded
 
+                // Cast to String from byte[]
+                byte[] movieNameByte = tocken[MOVIE].getBytes(StandardCharsets.UTF_8);
 
+                // We need to compute each hash function
+                for (int i=0; i<7; i++)
+                {
+                    funHash.hash(movieNameByte, 10, i);
+                }
+
+                // context.write(key, value);  // <vote, m>
             }
-
         }
 
 
