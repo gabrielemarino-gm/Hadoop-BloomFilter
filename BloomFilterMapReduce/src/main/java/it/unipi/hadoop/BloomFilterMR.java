@@ -1,8 +1,10 @@
 package it.unipi.hadoop;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration;
@@ -19,70 +21,17 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.hash.Hash;
 import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
+import org.apache.hadoop.util.hash.MurmurHash;
 
 public class BloomFilterMR
 {
 
-    public static class ConstructionMapper extends Mapper<LongWritable, Text, Text, IntWritable>
-    {
-        // Require: DOC, dataset
-        // for each WORD in DOC:
-        //  if WORD == voto
-        //      voto.round()
-        //      emit(voto, 1)
-        private final static IntWritable one = new IntWritable(1);
-        private final Text word = new Text();
-
-        public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException
-        {
-            final StringTokenizer itr = new StringTokenizer(value.toString());
-
-            while (itr.hasMoreTokens())
-            {
-                word.set(itr.nextToken());
-                double rate = Double.parseDouble(String.valueOf(word));
-                if(word.toString().startsWith("tt")){
-                    continue;
-                }
-                if (rate == Math.floor(rate) && !Double.isInfinite(rate) && !word.toString().endsWith(".0"))
-                {
-                    continue;
-                }
-                word.set(String.valueOf((int) Math.round((rate))));
-                context.write(word, one);
-            }
-        }
-    }
-
-    public static class ConstructionReducer extends Reducer<Text, Text, Text, IntWritable>
-    {
-        // <voto, [1, 1, ..., 1]>
-        // Somma
-        // Calcolare m
-
-        private final IntWritable result = new IntWritable();
-
-        public void reduce(final Text key, final Iterable<IntWritable> values, final Context context) throws IOException, InterruptedException
-        {
-            int n = 0;
-            for (final IntWritable val : values)
-            {
-                n += val.get();
-            }
-
-            // Calculate m
-            double p = 0.1;
-            double m = (int) (-n * (Math.log(p)) / Math.log(2));
-
-            result.set((int) Math.ceil((m))); // Round to the higher int
-            context.write(key, result);  // <vote, m>
-        }
-    }
-
-    public static class BloomFilterMapper1 extends Mapper<LongWritable, Text, Text, Text>
+    public static class BloomFilterMapper1 extends Mapper<LongWritable, Text, Text, IntArrayWritable>
     {
         // reuse Hadoop's Writable objects
-        private final Text reducerKey = new Text();
+        private final Text outputKey = new Text();
+        private final IntArrayWritable outputValue = new IntArrayWritable();
+        private final int k = 7;
         //private final TimeSeriesData reducerValue = new TimeSeriesData();
 
         /*
@@ -101,6 +50,7 @@ public class BloomFilterMR
         InputStream is = FileSystem.get(conf).open(new Path(conf.get("centroids.path")));
          */
 
+        
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException
         {
@@ -149,10 +99,49 @@ public class BloomFilterMR
             }
              */
 
+            String[] inputs = value.toString().split(" ");
+
+            if(inputs.length < 3){
+                return;
+            }
+            double rate = 0;
+            String movie_name = inputs[0];
+            String rating = "";
+            try{
+                rating = inputs[1];
+                rate = Double.parseDouble(inputs[1]);
+            }
+            catch(Exception e){
+                System.out.println("Error in parsing the input file");
+            }
+
+            if (rate == Math.floor(rate) && !Double.isInfinite(rate) && !rating.endsWith(".0"))
+            {
+                System.out.println("Error in parsing the input file");
+            }
+            int m = 0;
+            try {
+                m = Integer.parseInt(context.getConfiguration().get("m_" + rate));
+            }
+            catch (Exception e){
+                System.out.println("Error in parsing the input file");
+            }
+            Hash h = new MurmurHash();
+            IntWritable hashList[] = new IntWritable[k];
+            for(int i = 0; i < k; i++) {
+                //((int) (Math.random()*(maximum - minimum))) + minimum;
+                int seed = (int)(Math.random()*(k-1))%m;
+                hashList[i] = new IntWritable(h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), seed));
+            }
+            outputKey.set(String.valueOf((int) Math.round((rate))));
+
+            outputValue.set(hashList);
+            context.write(outputKey, outputValue);
+
         }
     }
 
-    public static class BloomFilterMapper2 extends Mapper<LongWritable, Text, Text, Text>
+    /*public static class BloomFilterMapper2 extends Mapper<LongWritable, Text, Text, Text>
     {
         // reuse Hadoop's Writable objects
         private final Text reducerKey = new Text();
@@ -162,7 +151,7 @@ public class BloomFilterMR
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException
         {
             // To be implemented
-			/*
+
 			Algorithm 1 MAPPER
 			Require: HASH F U N CT ION S, list of hash functions
 			Require: input split, record in input to the Mapper
@@ -174,12 +163,12 @@ public class BloomFilterMR
 			pos++;
 			end for
 			emit(avg rating, hash values)
-			*/
+
 
         }
-    }
+    }*/
 
-    public static class BloomFilterReducer extends Reducer<Text, Text, Text, Text>
+    public static class BloomFilterReducer extends Reducer<Text, IntWritable, Text, Text>
     {
         private int windowSize;
 
@@ -190,10 +179,9 @@ public class BloomFilterMR
 
         }
 
-        public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException
+        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
         {
             /*
-
 			Algorithm 2 REDUCER
 			Require: IN P U T LIST , list of hash results computed in the Mapper
 			Require: key, average rating for a movie
@@ -207,10 +195,38 @@ public class BloomFilterMR
 			end for
 			end for
 			write to hdfs(Bloom F ilter)
-
 			*/
-            // To be implemented
 
+            // To be implemented
+            int m = 0;
+            try {
+                m = Integer.parseInt(context.getConfiguration().get("m_" + key.toString()));
+            }
+            catch (Exception e){
+                System.out.println("Error in parsing the input file");
+            }
+        }
+    }
+
+    public static class IntArrayWritable extends ArrayWritable {
+
+        public IntArrayWritable() {
+            super(IntWritable.class);
+        }
+
+        public IntArrayWritable(IntWritable[] values) {
+            super(IntWritable.class, values);
+        }
+
+        @Override
+        public IntWritable[] get() {
+            return (IntWritable[]) super.get();
+        }
+
+        @Override
+        public String toString() {
+            IntWritable[] values = get();
+            return values[0].toString() + ", " + values[1].toString();
         }
     }
 

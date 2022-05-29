@@ -58,10 +58,10 @@ public class ContructionMR {
             }
 
             // Calculate m
-            double p = 0.1;
-            double m = (int) (-n * (Math.log(p)) / Math.log(2));
+            double p = 0.01;
+            double m = (-n * (Math.log(p)) / (Math.log(2)*(Math.log(2))));
 
-            result.set((int) Math.ceil((m))); // Round to the higher int
+            result.set((int) (Math.ceil((m)))); // Round to the higher int
             context.write(key, result);  // <vote, m>
         }
     }
