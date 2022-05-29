@@ -75,10 +75,10 @@ public class BloomFilter
             }
 
             // Calculate m
-            double p = 0.1;
-            double m = (int) (-n * (Math.log(p)) / Math.log(2));
+            double p = 0.01;
+            double m = (-n * (Math.log(p)) / (Math.log(2) * Math.log(2)));
 
-            result.set((int) Math.ceil((m))); // Round m to the higher int
+            result.set((int) (Math.ceil(m))); // Round m to the higher int
 
             // Add the result in the context in the format: <key, value> = <vote, m>
             context.write(key, result);
