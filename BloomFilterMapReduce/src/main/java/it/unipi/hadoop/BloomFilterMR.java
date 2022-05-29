@@ -22,85 +22,27 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.hash.Hash;
 import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.util.hash.MurmurHash;
+import it.unipi.hadoop.BloomFilter.IntArrayWritable;
 
 public class BloomFilterMR
 {
 
-    public static class BloomFilterMapper1 extends Mapper<LongWritable, Text, Text, IntArrayWritable>
+    public static class BloomFilterMapper extends Mapper<LongWritable, Text, Text, IntArrayWritable>
     {
         // reuse Hadoop's Writable objects
         private final Text outputKey = new Text();
         private final IntArrayWritable outputValue = new IntArrayWritable();
         private final int k = 7;
-        //private final TimeSeriesData reducerValue = new TimeSeriesData();
+        private Hash h = new MurmurHash();
 
-        /*
-        double[][] centroids = new double[5][];
-
-        public void setup(Configuration conf) {
-             InputStream is = FileSystem.get(conf).open(new Path("centroids.txt"));
-             // read centroid values
-        }
-
-        If you don't want to hardcode file path in mapper code, you can pass it to configuration object before submitting the job:
-
-        conf.set("centroids.path", "centroids.txt");
-        and then read it in mapper
-
-        InputStream is = FileSystem.get(conf).open(new Path(conf.get("centroids.path")));
-         */
-
-        
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException
         {
-            // To be implemented
-			/*
-			Algorithm 1 MAPPER
-			Require: HASH F U N CT ION S, list of hash functions
-			Require: input split, record in input to the Mapper
-			Initialize movie name ←input split.movie name
-			Initialize avg rating ←round next int(input split.avg rating)
-			Initialize hash values = empty
-			for each hash f unction ∈ HASH F U N CT ION S do
-			hash values[pos] ← hash function(movie name)
-			pos++;
-			end for
-			emit(avg rating, hash values)
-			*/
-            /*
-            List<Hash> hashList = new ArrayList<>();
+
+            //take the input values and split them, they are separated by spaces
             String[] inputs = value.toString().split(" ");
 
-            if(inputs.length < 3){
-                return;
-            }
-
-            double key = 0;
-            String movie_name = inputs[0];
-
-            try{
-
-                val = Double.parseDouble(inputs[3]);
-            }
-            catch(Exception e){
-                System.out.println("Error in parsing the input file");
-            }
-
-            int size = numColM;
-            if(label.equals("M")){
-                size = numColN;
-            }
-
-            for(int k = 0; k < size; k++){
-                outputKey.set(indexRow + "," + k);
-                outputValue.set(label + "," + indexCol+ "," + val);
-                context.write(outputKey, outputValue);
-            }
-             */
-
-            String[] inputs = value.toString().split(" ");
-
+            //if number of input values is less than expected do nothing
             if(inputs.length < 3){
                 return;
             }
@@ -108,17 +50,22 @@ public class BloomFilterMR
             String movie_name = inputs[0];
             String rating = "";
             try{
+                //we first take the rating as a string
                 rating = inputs[1];
+                //then we take it also as a double
                 rate = Double.parseDouble(inputs[1]);
             }
             catch(Exception e){
                 System.out.println("Error in parsing the input file");
             }
 
+            //check if the value of the rate is equal to the smallest integer value closest to it, it's not infinite and the string doesn't contain ".0";
+            //if the string contains ".0" we consider it as a rating since it's a double
             if (rate == Math.floor(rate) && !Double.isInfinite(rate) && !rating.endsWith(".0"))
             {
                 System.out.println("Error in parsing the input file");
             }
+            //Take m from the configuration
             int m = 0;
             try {
                 m = Integer.parseInt(context.getConfiguration().get("m_" + rate));
@@ -126,13 +73,14 @@ public class BloomFilterMR
             catch (Exception e){
                 System.out.println("Error in parsing the input file");
             }
-            Hash h = new MurmurHash();
+            //Apply the hash functions
             IntWritable hashList[] = new IntWritable[k];
             for(int i = 0; i < k; i++) {
-                //((int) (Math.random()*(maximum - minimum))) + minimum;
+                //Pick as seed a random number between 0 and k modulo m, where k is the number of hash functions and m the dimension of the array;
                 int seed = (int)(Math.random()*(k-1))%m;
                 hashList[i] = new IntWritable(h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), seed));
             }
+            //set the key as the closest integer to the rating
             outputKey.set(String.valueOf((int) Math.round((rate))));
 
             outputValue.set(hashList);
@@ -141,36 +89,8 @@ public class BloomFilterMR
         }
     }
 
-    /*public static class BloomFilterMapper2 extends Mapper<LongWritable, Text, Text, Text>
-    {
-        // reuse Hadoop's Writable objects
-        private final Text reducerKey = new Text();
-        //private final TimeSeriesData reducerValue = new TimeSeriesData();
-
-        @Override
-        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException
-        {
-            // To be implemented
-
-			Algorithm 1 MAPPER
-			Require: HASH F U N CT ION S, list of hash functions
-			Require: input split, record in input to the Mapper
-			Initialize movie name ←input split.movie name
-			Initialize avg rating ←round next int(input split.avg rating)
-			Initialize hash values = empty
-			for each hash f unction ∈ HASH F U N CT ION S do
-			hash values[pos] ← hash function(movie name)
-			pos++;
-			end for
-			emit(avg rating, hash values)
-
-
-        }
-    }*/
-
     public static class BloomFilterReducer extends Reducer<Text, IntWritable, Text, Text>
     {
-        private int windowSize;
 
         public void setup(Context context) throws IOException, InterruptedException
         {
@@ -183,21 +103,20 @@ public class BloomFilterMR
         {
             /*
 			Algorithm 2 REDUCER
-			Require: IN P U T LIST , list of hash results computed in the Mapper
+			Require: INPUT LIST , list of hash results computed in the Mapper
 			Require: key, average rating for a movie
 			Require: m, dimension of the bloom filter
-			Initialize Bloom F ilter ←new ARRAY(m)
-			Bloom F ilter[i] ← 0 for each i = 0,...,m-1
+			Initialize Bloom Filter ←new ARRAY(m)
+			Bloom Filter[i] ← 0 for each i = 0,...,m-1
 			for each V ALU ES ∈ IN P U T LIST do
 			SP LIT T ED V ALU ES ←split(VALUES)
 			for each value ∈ SP LIT T ED V ALU ES do
-			Bloom F ilter[value] ← 1
+			Bloom Filter[value] ← 1
 			end for
 			end for
-			write to hdfs(Bloom F ilter)
+			write to hdfs(Bloom Filter)
 			*/
 
-            // To be implemented
             int m = 0;
             try {
                 m = Integer.parseInt(context.getConfiguration().get("m_" + key.toString()));
@@ -208,27 +127,7 @@ public class BloomFilterMR
         }
     }
 
-    public static class IntArrayWritable extends ArrayWritable {
 
-        public IntArrayWritable() {
-            super(IntWritable.class);
-        }
-
-        public IntArrayWritable(IntWritable[] values) {
-            super(IntWritable.class, values);
-        }
-
-        @Override
-        public IntWritable[] get() {
-            return (IntWritable[]) super.get();
-        }
-
-        @Override
-        public String toString() {
-            IntWritable[] values = get();
-            return values[0].toString() + ", " + values[1].toString();
-        }
-    }
 
 
 }

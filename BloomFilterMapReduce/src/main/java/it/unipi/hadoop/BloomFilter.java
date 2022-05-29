@@ -3,6 +3,7 @@ package it.unipi.hadoop;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -11,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -22,8 +24,8 @@ public class BloomFilter {
         Configuration conf = new Configuration();
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 
-        if (otherArgs.length != 3) {
-            System.err.println("Usage: PageRank <input path> <output path> <# of iterations>");
+        if (otherArgs.length != 2) {
+            System.err.println("Usage: BloomFilter <input path> <output path> ");
             System.exit(-1);
         }
 
@@ -45,27 +47,28 @@ public class BloomFilter {
     private static boolean constructionJob(Configuration conf, String inPath, String outPath) throws Exception {
 
         Job job = Job.getInstance(conf, "ConstructionMR");
-        //job.setJarByClass(InMemoryMovingAverage.class);
+        job.setJarByClass(ConstructionMR.class);
 
         // set mapper/reducer
-        job.setMapperClass(BloomFilterMR.BloomFilterMapper1.class);
-        job.setReducerClass(BloomFilterMR.BloomFilterReducer.class);
+        job.setMapperClass(ConstructionMR.ConstructionMapper.class);
+        job.setReducerClass(ConstructionMR.ConstructionReducer.class);
 
         // define mapper's output key-value
         job.setMapOutputKeyClass(Text.class);
-        //job.setMapOutputValueClass(TimeSeriesData.class);
+        job.setMapOutputValueClass(IntWritable.class);
 
         // define reducer's output key-value
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
 
         // define I/O
-        FileInputFormat.addInputPath(job, new Path(inPath));
-        //MultipleInputs.addInputPath(job, new Path(otherArgs[1]));
-        FileOutputFormat.setOutputPath(job, new Path(outPath));
-
-        job.setInputFormatClass(TextInputFormat.class);
+        job.setInputFormatClass(NLineInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
+
+        //FileInputFormat.addInputPath(job, new Path(inPath));
+        NLineInputFormat.addInputPath(job, new Path(inPath));
+        job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", 311782);
+        FileOutputFormat.setOutputPath(job, new Path(outPath));
 
         return job.waitForCompletion(true);
     }
@@ -86,36 +89,26 @@ public class BloomFilter {
         //job.setJarByClass(InMemoryMovingAverage.class);
 
         // set mapper/reducer
-        job.setMapperClass(BloomFilterMR.BloomFilterMapper1.class);
+        job.setMapperClass(BloomFilterMR.BloomFilterMapper.class);
         job.setReducerClass(BloomFilterMR.BloomFilterReducer.class);
 
         // define mapper's output key-value
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(IntWritable.class);
+        job.setMapOutputValueClass(IntArrayWritable.class);
 
         // define reducer's output key-value
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        // set window size for moving average calculation
-        job.getConfiguration().set("m_1", "100");
-        job.getConfiguration().set("m_2", "1000");
-        job.getConfiguration().set("m_3", "1000");
-        job.getConfiguration().set("m_4", "100");
-        job.getConfiguration().set("m_5", "100");
-        job.getConfiguration().set("m_6", "1000");
-        job.getConfiguration().set("m_7", "1000");
-
         // define I/O
-        FileInputFormat.addInputPath(job, new Path(inPath));
-        /*job.setJarByClass(MultipleFiles.class);
-        MultipleInputs.addInputPath(job, p1, TextInputFormat.class, MultipleMap1.class);
-        MultipleInputs.addInputPath(job,p2, TextInputFormat.class, MultipleMap2.class);*/
-        //MultipleInputs.addInputPath(job, new Path(otherArgs[1]));
-        FileOutputFormat.setOutputPath(job, new Path(outPath));
-
-        job.setInputFormatClass(TextInputFormat.class);
+        //job.setInputFormatClass(TextInputFormat.class);
+        job.setInputFormatClass(NLineInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
+
+        //FileInputFormat.addInputPath(job, new Path(inPath));
+        NLineInputFormat.addInputPath(job, new Path(inPath));
+        job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", 311782);
+        FileOutputFormat.setOutputPath(job, new Path(outPath));
 
         return job.waitForCompletion(true);
     }
@@ -145,5 +138,28 @@ public class BloomFilter {
         }
 
         return result;
+    }
+
+    /*********************UTILS************************/
+    public static class IntArrayWritable extends ArrayWritable {
+
+        public IntArrayWritable() {
+            super(IntWritable.class);
+        }
+
+        public IntArrayWritable(IntWritable[] values) {
+            super(IntWritable.class, values);
+        }
+
+        @Override
+        public IntWritable[] get() {
+            return (IntWritable[]) super.get();
+        }
+
+        @Override
+        public String toString() {
+            IntWritable[] values = get();
+            return values[0].toString() + ", " + values[1].toString();
+        }
     }
 }
