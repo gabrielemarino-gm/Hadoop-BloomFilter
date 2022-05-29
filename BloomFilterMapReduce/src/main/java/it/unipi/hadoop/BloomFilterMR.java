@@ -2,25 +2,14 @@ package it.unipi.hadoop;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
 
-import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.hash.Hash;
-import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.util.hash.MurmurHash;
 import it.unipi.hadoop.BloomFilter.IntArrayWritable;
 
@@ -76,31 +65,33 @@ public class BloomFilterMR
             //Apply the hash functions
             IntWritable hashList[] = new IntWritable[k];
             for(int i = 0; i < k; i++) {
-                //Pick as seed a random number between 0 and k modulo m, where k is the number of hash functions and m the dimension of the array;
-                int seed = (int)(Math.random()*(k-1))%m;
-                hashList[i] = new IntWritable(h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), seed));
+                //Pick as seed the index between 0 and k-1 and take the result modulo m, where k is the number of hash functions
+                //and m the dimension of the array;
+                hashList[i] = new IntWritable(h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i)%m);
             }
             //set the key as the closest integer to the rating
             outputKey.set(String.valueOf((int) Math.round((rate))));
 
             outputValue.set(hashList);
-            context.write(outputKey, outputValue);
+            context.write(outputKey, outputValue); // <vote, hashList>
 
         }
     }
 
-    public static class BloomFilterReducer extends Reducer<Text, IntWritable, Text, Text>
+    public static class BloomFilterReducer extends Reducer<Text, IntArrayWritable, Text, IntArrayWritable>
     {
+        private final IntArrayWritable result = new IntArrayWritable();
 
-        public void setup(Context context) throws IOException, InterruptedException
+        /*public void setup(Context context) throws IOException, InterruptedException
         {
             // To be implemented
             Configuration conf = context.getConfiguration();
 
-        }
+        }*/
 
-        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException
+        public void reduce(Text key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException
         {
+
             /*
 			Algorithm 2 REDUCER
 			Require: INPUT LIST , list of hash results computed in the Mapper
@@ -108,15 +99,15 @@ public class BloomFilterMR
 			Require: m, dimension of the bloom filter
 			Initialize Bloom Filter ←new ARRAY(m)
 			Bloom Filter[i] ← 0 for each i = 0,...,m-1
-			for each V ALU ES ∈ IN P U T LIST do
-			SP LIT T ED V ALU ES ←split(VALUES)
-			for each value ∈ SP LIT T ED V ALU ES do
+			for each HASH_ARRAY ∈ INPUT LIST do
+			for each value ∈ HASH_ARRAY do
 			Bloom Filter[value] ← 1
 			end for
 			end for
 			write to hdfs(Bloom Filter)
 			*/
 
+            //take the m value from the configuration based on the key
             int m = 0;
             try {
                 m = Integer.parseInt(context.getConfiguration().get("m_" + key.toString()));
@@ -124,14 +115,27 @@ public class BloomFilterMR
             catch (Exception e){
                 System.out.println("Error in parsing the input file");
             }
+            int bloomFilter[] = new int[m];
+
+            //initialize the bloom filter with all zeros
+            for(int i = 0; i < m; i++){
+                bloomFilter[i] = 0;
+            }
+            //Take all the hash values arrays in input and for each value write 1 in the Bloom Filter
+            //in the position determined by the value
+            for(IntArrayWritable arr : values){
+                for(IntWritable value : arr.get()) {
+                    int pos = value.get();
+                    bloomFilter[pos] = 1;
+                }
+            }
+            result.set(bloomFilter);
+            context.write(key, result); // <vote, bloomFilter>
         }
     }
-
-
-
 
 }
 
 /*
--Containins the mapper, the reducer and the driver code.
+-Contains the mapper and the reducer for building up all the bloom filters
 */

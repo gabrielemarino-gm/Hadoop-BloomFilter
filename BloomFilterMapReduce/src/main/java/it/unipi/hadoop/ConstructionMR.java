@@ -72,3 +72,7 @@ public class ConstructionMR {
         }
     }
 }
+
+/*
+-Contains the mapper and the reducer for the bloom filter parameters construction
+*/

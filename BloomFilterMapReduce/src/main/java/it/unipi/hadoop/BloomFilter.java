@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 public class BloomFilter {
+    private static final int NUM_BLOOM_FILTERS = 10;
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -32,7 +33,7 @@ public class BloomFilter {
         if (!constructionJob(conf, otherArgs[0], "tmp1"))
             System.exit(-1);
 
-        boolean finalStatus = bloomFilterJob(conf, "tmp1", otherArgs[0], otherArgs[1]);
+        boolean finalStatus = !bloomFilterJob(conf, "tmp1", otherArgs[0], otherArgs[1]);
         //removeDirectory(conf, "tmp2");
 
         // TIME
@@ -42,6 +43,10 @@ public class BloomFilter {
 
         if (!finalStatus)
             System.exit(-1);
+
+        System.out.println("TESTING THE FALSE POSITIVE RATES");
+        testJob(otherArgs[1]);
+
     }
 
     private static boolean constructionJob(Configuration conf, String inPath, String outPath) throws Exception {
@@ -98,7 +103,7 @@ public class BloomFilter {
 
         // define reducer's output key-value
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(IntArrayWritable.class);
 
         // define I/O
         //job.setInputFormatClass(TextInputFormat.class);
@@ -113,8 +118,13 @@ public class BloomFilter {
         return job.waitForCompletion(true);
     }
 
+    private static void testJob(String inDataPath){
+        //TODO 29/05/2022: get the bloom filters and for each one test the false positive rate
+
+    }
+    
     private static int[] readM(Configuration conf, String pathString, String pattern) throws Exception {
-        int result[] = new int[7];
+        int result[] = new int[NUM_BLOOM_FILTERS];
         FileSystem hdfs = FileSystem.get(conf);
 
         BufferedReader br= new BufferedReader(new InputStreamReader(hdfs.open(new Path(pathString))));
@@ -156,6 +166,14 @@ public class BloomFilter {
             return (IntWritable[]) super.get();
         }
 
+        public void set(int[] array){
+            IntWritable values[] = new IntWritable[array.length];
+            for (int i = 0; i < array.length; i++){
+                values[i].set(array[i]);
+            }
+            super.set(values);
+        }
+
         @Override
         public String toString() {
             IntWritable[] values = get();
@@ -163,3 +181,8 @@ public class BloomFilter {
         }
     }
 }
+
+/*
+-Contains the main method which calls the drivers of the bloom filters, utility methods for bloom filter consttuction and the false
+positive rate test
+*/
