@@ -2,6 +2,7 @@ package it.unipi.hadoop;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -78,9 +79,9 @@ public class BloomFilterMR
         }
     }
 
-    public static class BloomFilterReducer extends Reducer<Text, IntArrayWritable, Text, IntArrayWritable>
+    public static class BloomFilterReducer extends Reducer<Text, IntArrayWritable, Text, Text/*IntArrayWritable*/>
     {
-        private final IntArrayWritable result = new IntArrayWritable();
+        private final Text result = new Text();
 
         /*public void setup(Context context) throws IOException, InterruptedException
         {
@@ -91,21 +92,6 @@ public class BloomFilterMR
 
         public void reduce(Text key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException
         {
-
-            /*
-			Algorithm 2 REDUCER
-			Require: INPUT LIST , list of hash results computed in the Mapper
-			Require: key, average rating for a movie
-			Require: m, dimension of the bloom filter
-			Initialize Bloom Filter ←new ARRAY(m)
-			Bloom Filter[i] ← 0 for each i = 0,...,m-1
-			for each HASH_ARRAY ∈ INPUT LIST do
-			for each value ∈ HASH_ARRAY do
-			Bloom Filter[value] ← 1
-			end for
-			end for
-			write to hdfs(Bloom Filter)
-			*/
 
             //take the m value from the configuration based on the key
             int m = 0;
@@ -129,7 +115,10 @@ public class BloomFilterMR
                     bloomFilter[pos] = 1;
                 }
             }
-            result.set(bloomFilter);
+            IntArrayWritable bloomFilterArray = new IntArrayWritable();
+            bloomFilterArray.set(bloomFilter);
+            //result.set(Arrays.toString(bloomFilterArray.getData()));
+            result.set(bloomFilterArray.toString());
             context.write(key, result); // <vote, bloomFilter>
         }
     }
