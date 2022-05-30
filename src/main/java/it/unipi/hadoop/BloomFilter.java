@@ -122,7 +122,7 @@ public class BloomFilter
                 // Split the row in three part: MovieName, Vote, nVote
                 String[] tocken = record.trim().split(" ");
 
-                // If we are here, it's means that we have a vote
+                // I take the vote in a rounded way
                 int vote = (int) Math.round(Double.parseDouble(tocken[VOTE])); // Rounded
 
                 // Cast to String from byte[]
