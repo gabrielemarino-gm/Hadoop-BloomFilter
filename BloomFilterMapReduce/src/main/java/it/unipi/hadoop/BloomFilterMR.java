@@ -32,13 +32,6 @@ public class BloomFilterMR
 
             // take the input values from dataset and split them, they are separated by spaces
             String[] inputs = value.toString().split("\t");
-
-            // if number of input values is less than expected do nothing
-            /*if(inputs.length < 3)
-            {
-                return;
-            }*/
-            
             double rate = 0;
             String movie_name = inputs[0];
             String rating = "";
@@ -95,19 +88,9 @@ public class BloomFilterMR
         }
     }
 
-    // Prende bene m?
-    // Se funziona la set()? Instaziare IntArrayWritable?
     public static class BloomFilterReducer extends Reducer<Text, IntArrayWritable, Text, /*Text*/IntArrayWritable>
     {
-        // private final Text result = new Text();
         private final IntArrayWritable result = new IntArrayWritable();
-
-        /*public void setup(Context context) throws IOException, InterruptedException
-        {
-            // To be implemented
-            Configuration conf = context.getConfiguration();
-
-        }*/
 
         public void reduce(Text key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException
         {
@@ -146,20 +129,6 @@ public class BloomFilterMR
                     bloomFilter[pos] = 1;
                 }
             }
-
-
-            // IntArrayWritable bloomFilterArray = new IntArrayWritable();
-            // bloomFilterArray.set(bloomFilter);
-
-            // System.out.println("BloomFilter: " + bloomFilterArray.toString());
-
-            // reslt.set(Arrays.toString(bloomFilterArray.getData()));
-            // result.set(bloomFilterArray.toString());
-            /* int []  arr = new int[4];
-            for(int i=0;i<4;i++){
-                arr[i] = i;
-            }
-            result.set(arr);*/
 
             result.set(bloomFilter);
             context.write(key, result); // <vote, bloomFilter>

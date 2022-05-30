@@ -32,9 +32,6 @@ public class BloomFilter
 
     public static void main(String[] args) throws Exception
     {
-        testSet();
-
-
         long start = System.currentTimeMillis();
 
         Configuration conf = new Configuration();
@@ -50,7 +47,7 @@ public class BloomFilter
             System.exit(-1);
 
         boolean finalStatus = !bloomFilterJob(conf, "tmp1/part-r-00000", otherArgs[0], otherArgs[1]);
-        //removeDirectory(conf, "tmp2");
+        //removeDirectory(conf, "tmp1");
 
         // TIME
         long end = System.currentTimeMillis();
@@ -62,26 +59,6 @@ public class BloomFilter
 
         // System.out.println("TESTING THE FALSE POSITIVE RATES");
         // testJob(conf, otherArgs[1]);
-
-    }
-
-
-    private static void testSet()
-    {
-        System.out.println();
-        System.out.println();
-        int[] bloomFilter = new int[16];
-        for(int i=0; i<16; i++)
-        {
-            bloomFilter[i] = i;
-        }
-
-        IntArrayWritable test = new IntArrayWritable();
-        test.set(bloomFilter);
-        System.out.println("TEST STAMPA INT_ARRAY_WRITABLE");
-        System.out.println("TEST : " + test.toString());
-        System.out.println();
-        System.out.println();
 
     }
 
@@ -165,10 +142,6 @@ public class BloomFilter
 
 
         Job job = Job.getInstance(conf, "BloomFilterMR");
-        //job.setJarByClass(InMemoryMovingAverage.class);
-        // System.out.println("M1 = " + conf.get("m_1"));
-
-
         job.setJarByClass(BloomFilter.class);
 
         // set mapper/reducer
@@ -198,7 +171,7 @@ public class BloomFilter
         return job.waitForCompletion(true);
     }
 
-    /*
+    
     private static void testJob(Configuration conf, String inDataPath) throws IOException
     {
         // TODO 30/05/2022: Test the bloom filter creation, then get the bloom filters and calculate the false postive rates
@@ -231,7 +204,7 @@ public class BloomFilter
             // close out the BufferedReader
             br.close();
         }
-    }*/
+    }
     
     private static int[] readM(Configuration conf, String pathString, String pattern) throws Exception
     {
@@ -304,7 +277,7 @@ public class BloomFilter
         }
 
 
-        public int[] getData()
+        /*public int[] getData()
         {
             IntWritable[] data = (IntWritable[]) super.get();
             int[] result = new int[data.length];
@@ -314,7 +287,7 @@ public class BloomFilter
             }
 
             return result;
-        }
+        }*/
 
         public void set(int[] array)
         {
