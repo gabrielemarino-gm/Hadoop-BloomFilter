@@ -1,3 +1,4 @@
+
 package it.unipi.hadoop;
 
 import org.apache.hadoop.io.IntWritable;
@@ -28,20 +29,29 @@ public class ConstructionMR {
             while (itr.hasMoreTokens())
             {
                 word.set(itr.nextToken());
-                double rate = Double.parseDouble(String.valueOf(word));
-                //if the word starts with "tt" then it's the movieID
-                if(word.toString().startsWith("tt")){
-                    continue;
-                }
-                //check if the value of the rate is equal to the smallest integer value closest to it, it's not infinite and the string doesn't contain ".0";
-                //if the string contains ".0" we consider it as a rating since it's a double
-                if (rate == Math.floor(rate) && !Double.isInfinite(rate) && !word.toString().endsWith(".0"))
+                try
                 {
-                    continue;
+                    // if the word starts with "tt" then it's the movieID
+                    if(word.toString().startsWith("tt"))
+                        continue;
+
+
+                    double rate = Double.parseDouble(String.valueOf(word));
+                    // check if the value of the rate is equal to the smallest integer value closest to it, it's not infinite and the string doesn't contain ".0";
+                    // if the string contains ".0" we consider it as a rating since it's a double
+                    if (rate == Math.floor(rate) && !Double.isInfinite(rate) && !word.toString().endsWith(".0"))
+                    {
+                        continue;
+                    }
+
+                    // round the rate to its closest integer value, then convert it to string
+                    word.set(String.valueOf((int) Math.round((rate))));
+                    context.write(word, one);
                 }
-                //round the rate to its closest integer value, then convert it to string
-                word.set(String.valueOf((int) Math.round((rate))));
-                context.write(word, one);
+                catch (Exception e)
+                {
+                    System.out.println("The token is a movie ID!, Exception: " + e.toString());
+                }
             }
         }
     }
