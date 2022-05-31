@@ -79,6 +79,7 @@ public class ConstructionMR {
 
         public void reduce(final Text key, final Iterable<IntWritable> values, final Context context) throws IOException, InterruptedException
         {
+            double p = 0;
             try
             {
                 p = Double.parseDouble(context.getConfiguration().get("p"));
