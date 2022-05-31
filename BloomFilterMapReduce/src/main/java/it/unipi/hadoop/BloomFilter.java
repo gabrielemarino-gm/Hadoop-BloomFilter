@@ -203,12 +203,11 @@ public class BloomFilter
                         if(l == 0 && j == 0)
                             System.out.println("Hash value: " + pos);
                         String[] elements = bloomFilter[l].split(" ");
-                        System.out.println("Filter size: " + elements.length);
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
                         if(elements.length < pos){
                             trueNegatives[l]++;
                             positive = false;
-                            break;
+                            //break;
                         }
                         else if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
                         {
