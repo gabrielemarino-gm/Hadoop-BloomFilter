@@ -177,6 +177,7 @@ public class BloomFilter
         double trueNegatives [] = new double[10];
         BufferedReader dataBr = new BufferedReader(new InputStreamReader(hdfs.open(new Path(inDataPath))));
         BufferedReader bloomFilterBr= new BufferedReader(new InputStreamReader(hdfs.open(new Path(inBfPath))));
+        Hash h  = new MurmurHash();
         String[] bloomFilter = new String[10]; //to store the bloom filters
         try
         {
@@ -210,7 +211,7 @@ public class BloomFilter
                 double rate = Double.parseDouble(inputs[1]);
                 int i = (int) Math.round((rate));
                 for (int j = 0; j < k; j++) {
-                    int pos = (MurmurHash.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
+                    int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
                     /*
                     if not filters[i][position] and i != row[1] - 1:  # true negative for the i-th filter
                     true_negatives[i] += 1

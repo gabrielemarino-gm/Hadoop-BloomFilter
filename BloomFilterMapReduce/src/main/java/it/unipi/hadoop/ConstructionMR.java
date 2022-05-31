@@ -61,7 +61,7 @@ public class ConstructionMR {
         // <voto, [1, 1, ..., 1]>
         // Somma
         // Calcolare m
-
+        double p = 0.01;
         private final IntWritable result = new IntWritable();
 
         public void reduce(final Text key, final Iterable<IntWritable> values, final Context context) throws IOException, InterruptedException
@@ -74,9 +74,7 @@ public class ConstructionMR {
             }
 
             // Calculate m
-            double p = 0.01;
             double m = (-n * (Math.log(p)) / (Math.log(2)*(Math.log(2))));
-
             result.set((int) (Math.ceil((m)))); // Round to the higher int
             context.write(key, result);  // <vote, m>
         }
