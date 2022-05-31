@@ -189,10 +189,27 @@ public class BloomFilter
                 String movie_name = inputs[0]; //movie id
                 double rate = Double.parseDouble(inputs[1]);
                 int i = (int) Math.round((rate));
-                for (int j = 0; j < k; j++)
+                Boolean positive;
+                for(int l = 0; l < bloomFilter.length; l++)
                 {
-                    int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
-                    // TODO 31/05/2022: test if the element is in the bloom filter
+                    positive = true;
+                    for (int j = 0; j < k; j++)
+                    {
+                        int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
+                        String[] elements = bloomFilter[l].split(" ");
+                        if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
+                        {
+                            trueNegatives[l]++;
+                            positive = false;
+                            break;
+                        }
+                    }
+                    if(positive && l != i -1)
+                    {
+                        falsePositives[l]++;
+                    }
+                }
+            
                     /*
                     if not filters[i][position] and i != row[1] - 1:  # true negative for the i-th filter
                     true_negatives[i] += 1
@@ -201,7 +218,6 @@ public class BloomFilter
                     if positive and i != row[1] - 1:  # false positive for the i-th filter
                         false_positives[i] += 1
                      */
-                }
                 // be sure to read the next line otherwise we get an infinite loop
                 line = dataBr.readLine();
             }
