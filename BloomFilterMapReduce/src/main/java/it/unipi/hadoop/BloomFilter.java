@@ -118,7 +118,7 @@ public class BloomFilter
         conf.setInt("m_10", m[9]);
         //compute k and set it to the configuration
         double nhash = (-1*Math.log(Double.parseDouble(fpr))/(Math.log(2)));
-        int k = (int) Math.ceil(nhash);
+        k = (int) Math.ceil(nhash);
         conf.setInt("k", k);
 
         Job job = Job.getInstance(conf, "BloomFilterMR");
@@ -199,12 +199,11 @@ public class BloomFilter
                     {
                         //take the hash value for chekcking the elements
                         int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
-                        System.out.println("Hash value: " + pos);
+                        //System.out.println("Hash value: " + pos);
                         String[] elements = bloomFilter[l].split(" ");
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
                         if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
                         {
-                            System.out.println("Elem negative filter: " + l + ", rate: " + i + "\n");
                             trueNegatives[l]++;
                             positive = false;
                             break;
@@ -213,7 +212,6 @@ public class BloomFilter
                     //if the element is in the filter but iit shouldn't be there is a false positive
                     if(positive && l != i -1)
                     {
-                        System.out.println("Elem positive, filter: " + l + ", rate: " + i +"\n");
                         falsePositives[l]++;
                     }
                 }
