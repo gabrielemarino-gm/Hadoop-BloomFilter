@@ -184,9 +184,11 @@ public class BloomFilter
         {
             String line;
             line = dataBr.readLine();
-
+            int cont = 0;
             while (line != null)
             {
+                cont++;
+                System.out.println("Entry n° " + cont);
                 String[] inputs = line.split("\t");
                 String movie_name = inputs[0]; //movie id
                 double rate = Double.parseDouble(inputs[1]); //take the rating
@@ -194,8 +196,8 @@ public class BloomFilter
                 Boolean positive;
                 for(int l = 0; l < bloomFilter.length; l++)
                 {
-                    int nbf = l+1;
-                    System.out.println("Bloom Filter n°: " + nbf);
+                    /*int nbf = l+1;
+                    System.out.println("Bloom Filter n°: " + nbf);*/
                     positive = true;
                     for (int j = 0; j < k; j++)
                     {
@@ -216,7 +218,7 @@ public class BloomFilter
                             break;
                         }
                     }
-                    //if the element is in the filter but iit shouldn't be there is a false positive
+                    //if the element is in the filter but it shouldn't be there is a false positive
                     if(positive && l != i -1)
                     {
                         falsePositives[l]++;
