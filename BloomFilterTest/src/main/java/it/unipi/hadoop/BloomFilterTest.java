@@ -1,19 +1,5 @@
 package it.unipi.hadoop;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.util.GenericOptionsParser;
-import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.util.hash.Hash;
 import org.apache.hadoop.util.hash.MurmurHash;
 
@@ -40,7 +26,7 @@ public class BloomFilterTest
         String filePath_m = "C:\\Users\\stefa\\OneDrive\\Documenti\\GitHub\\Hadoop-BloomFilter\\Array_m_output";
         String filePath_BF = "C:\\Users\\stefa\\OneDrive\\Documenti\\GitHub\\Hadoop-BloomFilter\\BloomFilter_output";
 
-        //TEST GABRI
+        //TEST GABRIELE
         /*
         String filePath_data = "D:\\Università\\Magistrale\\Primo anno\\Cloud Computing\\Ciuchino Team\\Data\\data.txt";
         String filePath_m = "D:\\Università\\Magistrale\\Primo anno\\Cloud Computing\\Ciuchino Team\\Data\\Array_m_output";
@@ -118,10 +104,8 @@ public class BloomFilterTest
         {
             String line;
             line = dataBr.readLine();
-            int cont = 0;
             while (line != null)
             {
-                cont++;
                 String[] inputs = line.split("\t"); //take the values from the input entry
                 String movie_name = inputs[0]; //movie id
                 double rate = Double.parseDouble(inputs[1]); //take the rating
