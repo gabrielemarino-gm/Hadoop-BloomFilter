@@ -67,8 +67,6 @@ public class BloomFilterTest
                     int i = Integer.parseInt(inputs[0]);
                     //assing to the correct position the m value associated to the rating
                     m[i-1] = Integer.parseInt(inputs[1]);
-                    // System.out.println("Result: " + result[i-1]);
-                    //break;
                 }
 
                 // be sure to read the next line otherwise we get an infinite loop
@@ -115,7 +113,6 @@ public class BloomFilterTest
             bloomFilterBr.close();
         }
 
-
         try
         {
             String line;
@@ -132,22 +129,19 @@ public class BloomFilterTest
                 Boolean positive;
                 for(int l = 0; l < bloomFilter.length; l++)
                 {
-                    /*int nbf = l+1;
-                    System.out.println("Bloom Filter n°: " + nbf);*/
                     positive = true;
                     for (int j = 0; j < k; j++)
                     {
                         //take the hash value for checking the elements
-                        int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), j) % m[rating] + m[rating]) % m[rating];
+                        int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), j) % m[l] + m[l]) % m[l];
 
-                        //String[] elements = bloomFilter[l].split(" ");
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
-                        if(bloomFilter[rating].length < pos){ //out of bounds
+                        if(bloomFilter[rating-1].length < pos){ //out of bounds
                             trueNegatives[l]++;
                             positive = false;
                             break;
                         }
-                        else if (bloomFilter[rating][pos] == 0 && l != rating - 1)
+                        else if (bloomFilter[rating-1][pos] == 0 && l != rating - 1)
                         {
                             trueNegatives[l]++;
                             positive = false;
