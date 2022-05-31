@@ -199,7 +199,8 @@ public class BloomFilter
                     {
                         //take the hash value for chekcking the elements
                         int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
-                        //System.out.println("Hash value: " + pos);
+                        if(l == 0 && j == 0)
+                            System.out.println("Hash value: " + pos);
                         String[] elements = bloomFilter[l].split(" ");
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
                         if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
