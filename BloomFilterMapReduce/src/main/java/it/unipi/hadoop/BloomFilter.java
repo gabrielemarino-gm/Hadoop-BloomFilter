@@ -204,10 +204,10 @@ public class BloomFilter
                        
                         String[] elements = bloomFilter[l].split(" ");
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
-                        if(elements.length < pos){
+                        if(elements.length < pos){ //out of bounds
                             trueNegatives[l]++;
                             positive = false;
-                            //break;
+                            break;
                         }
                         else if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
                         {
