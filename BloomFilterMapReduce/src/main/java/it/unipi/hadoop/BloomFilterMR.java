@@ -115,52 +115,16 @@ public class BloomFilterMR
             
             for(IntArrayWritable arr: values)
             {
-                int[] intArray = new int[arr.get().length];
+                //we take an array of integers from the IntArrayWritable
+                int[] intArray = new int[arr.getLen()];
                 for(int i = 0; i < intArray.length; i++){
+                    //make a deep copy
                     intArray[i] = arr.getElemAt(i);
+                    //take the position of the bloom filter element to set
                     int pos = intArray[i];
                     bloomFilter[pos] = 1;
                 }
             }
-
-
-            /*for(IntArrayWritable arr: values)
-            {
-                int[] intArray = new int[arr.get().length];
-                for(int i = 0; i < intArray.length; i++){
-                    intArray[i] = arr.getElemAt(i);
-                }
-                for(int j=0; j<intArray.length; j++)
-                {
-                    int pos = intArray[j];
-                    bloomFilter[pos] = 1;
-                }
-            }*/
-
-            /*for(IntArrayWritable arr: values)
-            {
-                IntWritable[] intArray = arr.get();
-                for(int j=0; j<intArray.length; j++)
-                {
-                    IntWritable value = new IntWritable();
-                    value = intArray[j];
-                    int pos = value.get();
-                    bloomFilter[pos] = 1;
-                }
-            }*/
-
-            /*for(int j = 0; j < values.length; j++)
-            {
-                IntWritable[] intArray = new IntWritable[values.length]; 
-                for(int k=0; k<intArray.length; k++)
-                {
-                    intArray[k] = values[j][k];
-                    IntWritable value = new IntWritable();
-                    value = intArray[k];
-                    int pos = value.get();
-                    bloomFilter[pos] = 1;
-                }
-            }*/
 
             result.set(bloomFilter);
             context.write(key, result); // <vote, bloomFilter>

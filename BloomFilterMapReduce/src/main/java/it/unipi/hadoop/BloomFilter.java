@@ -282,6 +282,7 @@ public class BloomFilter
             //return (IntWritable[]) super.get();
         }
 
+        //set the object with the values specified from the input array of int
         public void set(int[] array)
         {
             IntWritable[] values = new IntWritable[array.length];
@@ -296,12 +297,14 @@ public class BloomFilter
             super.set(values);
         }
 
+        //returns the element at the given position
         public int getElemAt(int pos){
             Writable[] tmp = super.get();
             IntWritable elem = (IntWritable)tmp[pos];
             return elem.get();
         }
 
+        //returns the length of the object
         public int getLen(){
             Writable[] tmp = super.get();
             return tmp.length;
