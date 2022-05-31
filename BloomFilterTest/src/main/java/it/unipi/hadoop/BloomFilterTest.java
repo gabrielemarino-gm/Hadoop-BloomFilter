@@ -153,7 +153,8 @@ public class BloomFilterTest
         {
             //compute the false positive rate
             double fp_rate = falsePositives[i] / (falsePositives[i] + trueNegatives[i]);
-            System.out.println("Rate " + i + ": False positives =  " + falsePositives[i] + ", FPR =  " + fp_rate  + "\n");
+            int j = i + 1;
+            System.out.println("Rate " + j + ": False positives =  " + falsePositives[i] + ", FPR =  " + fp_rate  + "\n");
         }
 
 

@@ -63,7 +63,17 @@ public class BloomFilter
 
     }
 
-    //starts the job for the contruction of the bloom filters' parameters
+    //starts the job for the construction of the bloom filters' parameters
+    /**
+     * Function which setups the job for the MapReduce algorithm which computes the parameters for the
+     * bloom filters construction; the method computes the value of k using the input false positive rate
+     * and sets it in the job configuration;the input is splitted based on the number of nodes in the cluster
+     * @param  conf     the configuration to pass to the job
+     * @param  inPath   path of the input file containing the dataset
+     * @param  outPath  path where to store to the output file of the construction job
+     * @param  fpr      the input value of the desired false positive rate
+     * @return          status of completion of the job
+     */
     private static boolean constructionJob(Configuration conf, String inPath, String outPath, String fpr) throws Exception
     {
         //extract p and set it to the configuration
@@ -99,6 +109,17 @@ public class BloomFilter
     }
 
     //starts the job for the MapReduce algorithm for the Bloom Filters construction
+    /**
+     * Function which setups the job for the MapReduce algorithm which constructs the bloom filters;
+     * the method retrieves the values of m from HDFS and puts to the configuration of the job;
+     * the input is splitted based on the number of nodes in the cluster
+     * @param  conf     the configuration to pass to the job
+     * @param  inPath   path of the input file containing the values of m
+     * @param  inPath   path of the input file containing the dataset
+     * @param  outPath  path where to store to the output file of the bloom filter construction job
+     * @param  fpr      the input value of the desired false positive rate
+     * @return          status of completion of the job
+     */
     private static boolean bloomFilterJob(Configuration conf, String inDataPath, String inPath, String outPath, String fpr) throws Exception
     {
         //call readM to take all the values of m obtained with the Constructor
@@ -243,6 +264,13 @@ public class BloomFilter
     }*/
     
     //reads the values of m from the ouptut file of the configuration job
+    /**
+     * Function which read the values of m from HDFS
+     * @param  conf         the configuration from which read the file containing the values of m
+     * @param  pathString   path of the input file containing the values of m
+     * @param  pattern      starting pattern of the desired lines of the file
+     * @return              array with the values of m, ordered by key
+     */
     private static int[] readM(Configuration conf, String pathString, String pattern) throws Exception
     {
         int[] result = new int[NUM_BLOOM_FILTERS];

@@ -13,15 +13,18 @@ import java.util.StringTokenizer;
 public class ConstructionMR {
     public static class ConstructionMapper extends Mapper<Object, Text, Text, IntWritable>
     {
-        // Require: DOC, dataset
-        // for each WORD in DOC:
-        //  if WORD == voto
-        //      voto.round()
-        //      emit(voto, 1)
 
         private final static IntWritable one = new IntWritable(1);
         private final Text keyWord = new Text();
 
+        /**
+         * Map function that takes in input a record of the dataset and retrieves the id of the movie
+         * and the rating of the movie; rounds the rating to its closest integer value
+         * @param  key      the key of the input of the map function
+         * @param  value    < movie_id, rating, number of votes>
+         * @param  context  the context which includes the data configuration of the job
+         * @return          < rating, 1>
+         */
         public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException
         {
             String[] inputs = value.toString().split("\t");
@@ -40,6 +43,7 @@ public class ConstructionMR {
         }
     }
 
+
     public static class ConstructionReducer extends Reducer<Text, IntWritable, Text, IntWritable>
     {
         // <voto, [1, 1, ..., 1]>
@@ -47,6 +51,15 @@ public class ConstructionMR {
         // Calcolare m
         private final IntWritable result = new IntWritable();
 
+        /**
+         * Reduce function that takes in input a rating with the corresponding list of occurrencies; computes
+         * the number of total occurencies per key and then computes m, the number of bits for the bloom
+         * filter for the rating given by the key
+         * @param  key      the key of the input of the reduce function, which is the rating
+         * @param  values   arrays containing the list of ones which represents the occurrencies of the key
+         * @param  context  the context which includes the data configuration of the job
+         * @return          < rating, number of bits of the bloom filter for that rating>
+         */
         public void reduce(final Text key, final Iterable<IntWritable> values, final Context context) throws IOException, InterruptedException
         {
             double p = 0;
