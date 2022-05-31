@@ -198,7 +198,7 @@ public class BloomFilter
                     for (int j = 0; j < k; j++)
                     {
                         //take the hash value for chekcking the elements
-                        int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
+                        int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), j) % m[i] + m[i]) % m[i];
                         if(l == 0 && j == 0)
                             System.out.println("Hash value: " + pos);
                         String[] elements = bloomFilter[l].split(" ");
