@@ -80,12 +80,12 @@ public class BloomFilterTest
         }
 
         Hash h  = new MurmurHash();
-        //String[] bloomFilter = new String[10]; //to store the bloom filters
-        int[][] bloomFilter = new int[10][];
+        int[][] bloomFilter = new int[10][]; //to store the bloom filters
         for (int i = 0; i < bloomFilter.length; ++i) {
             int tmp = m[i];
             bloomFilter[i] = new int[tmp];
         }
+
         try
         {
             String line;
@@ -121,7 +121,7 @@ public class BloomFilterTest
             while (line != null)
             {
                 cont++;
-                System.out.println("Entry n° " + cont);
+                //System.out.println("Entry n° " + cont);
                 String[] inputs = line.split("\t");
                 String movie_name = inputs[0]; //movie id
                 double rate = Double.parseDouble(inputs[1]); //take the rating
@@ -136,12 +136,12 @@ public class BloomFilterTest
                         int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), j) % m[l] + m[l]) % m[l];
 
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
-                        if(bloomFilter[rating-1].length < pos){ //out of bounds
-                            trueNegatives[l]++;
+                        if(bloomFilter[l].length < pos){ //out of bounds
+                            //trueNegatives[l]++;
                             positive = false;
                             break;
                         }
-                        else if (bloomFilter[rating-1][pos] == 0 && l != rating - 1)
+                        else if ((bloomFilter[l][pos] == 0) && (l != rating - 1))
                         {
                             trueNegatives[l]++;
                             positive = false;
