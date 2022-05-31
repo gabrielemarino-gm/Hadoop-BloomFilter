@@ -34,7 +34,7 @@ public class BloomFilter
 
     public static void main(String[] args) throws Exception
     {
-        long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis(); //starting time of execution
 
         Configuration conf = new Configuration();
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
@@ -52,7 +52,7 @@ public class BloomFilter
         //removeDirectory(conf, "tmp1");
 
         // TIME
-        long end = System.currentTimeMillis();
+        long end = System.currentTimeMillis(); //stoppage time of the execution
         end -= start;
         System.out.println("EXECUTION TIME: " + end + " ms");
 
@@ -64,6 +64,7 @@ public class BloomFilter
 
     }
 
+    //starts the job for the contruction of the bloom filters' parameters
     private static boolean constructionJob(Configuration conf, String inPath, String outPath, String fpr) throws Exception
     {
         //extract p and set it to the configuration
@@ -98,6 +99,7 @@ public class BloomFilter
         return job.waitForCompletion(true);
     }
 
+    //starts the job for the MapReduce algorithm for the Bloom Filters construction
     private static boolean bloomFilterJob(Configuration conf, String inDataPath, String inPath, String outPath, String fpr) throws Exception
     {
         //call readM to take all the values of m obtained with the Constructor
@@ -146,7 +148,7 @@ public class BloomFilter
         return job.waitForCompletion(true);
     }
 
-    
+    //launches the test of the false positive rates of the bloom filter constructed in the bloomFilterJob
     private static void testJob(Configuration conf, String inDataPath, String inBfPath) throws IOException
     {
         // TODO 30/05/2022: Test the bloom filter creation, then get the bloom filters and calculate the false postive rates
@@ -212,6 +214,7 @@ public class BloomFilter
         }
     }
     
+    //reads the values of m from the ouptut file of the configuration job
     private static int[] readM(Configuration conf, String pathString, String pattern) throws Exception
     {
         int[] result = new int[NUM_BLOOM_FILTERS];
@@ -228,8 +231,11 @@ public class BloomFilter
             {
                 if (line.startsWith(pattern))
                 {
+                    //split the input
                     String[] inputs = line.split("\t");
+                    //take the rating
                     int i = Integer.parseInt(inputs[0]);
+                    //assing to the correct position the m value associated to the rating
                     result[i-1] = Integer.parseInt(inputs[1]);
                     // System.out.println("Result: " + result[i-1]);
                     //break;
