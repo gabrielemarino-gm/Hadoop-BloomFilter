@@ -61,8 +61,6 @@ public class BloomFilter
         if (!finalStatus)
             System.exit(-1);
 
-        // System.out.println("TESTING THE FALSE POSITIVE RATES");
-
     }
 
     //starts the job for the contruction of the bloom filters' parameters

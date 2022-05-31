@@ -34,41 +34,22 @@ public class BloomFilterTest
         double trueNegatives [] = new double[10];
 
         // Take all input file
+
+        //TEST STEFANO
+        String filePath_data = "C:\\Users\\stefa\\OneDrive\\Documenti\\GitHub\\Hadoop-BloomFilter\\data.txt";
+        String filePath_m = "C:\\Users\\stefa\\OneDrive\\Documenti\\GitHub\\Hadoop-BloomFilter\\Array_m_output";
+        String filePath_BF = "C:\\Users\\stefa\\OneDrive\\Documenti\\GitHub\\Hadoop-BloomFilter\\BloomFilter_output";
+
+        //TEST GABRI
+        /*
         String filePath_data = "D:\\Università\\Magistrale\\Primo anno\\Cloud Computing\\Ciuchino Team\\Data\\data.txt";
         String filePath_m = "D:\\Università\\Magistrale\\Primo anno\\Cloud Computing\\Ciuchino Team\\Data\\Array_m_output";
         String filePath_BF = "D:\\Università\\Magistrale\\Primo anno\\Cloud Computing\\Ciuchino Team\\Data\\BloomFilter_output";
-
+        */
 
         BufferedReader dataBr = new BufferedReader(new FileReader(filePath_data)); //to read the dataset
         BufferedReader bloomFilterBr= new BufferedReader(new FileReader(filePath_BF)); //to read the filters
         BufferedReader mBR= new BufferedReader(new FileReader(filePath_m)); //to read the filters
-
-        Hash h  = new MurmurHash();
-        String[] bloomFilter = new String[10]; //to store the bloom filters
-        try
-        {
-            String line;
-            line = bloomFilterBr.readLine();
-            while (line != null)
-            {
-                String[] inputs = line.split("\t"); //key value split
-                //we take the key and assing the bloom filter to the corresponding entry
-                int i = Integer.parseInt(inputs[0]);
-                bloomFilter[i-1] = inputs[1];
-                // be sure to read the next line otherwise we get an infinite loop
-                line = bloomFilterBr.readLine();
-            }
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-        finally
-        {
-            // close out the BufferedReader
-            bloomFilterBr.close();
-        }
-
 
         int[] m = new int[10];
         try
@@ -100,6 +81,40 @@ public class BloomFilterTest
             mBR.close();
         }
 
+        Hash h  = new MurmurHash();
+        //String[] bloomFilter = new String[10]; //to store the bloom filters
+        int[][] bloomFilter = new int[10][];
+        for (int i = 0; i < bloomFilter.length; ++i) {
+            int tmp = m[i];
+            bloomFilter[i] = new int[tmp];
+        }
+        try
+        {
+            String line;
+            line = bloomFilterBr.readLine();
+            while (line != null)
+            {
+                String[] inputs = line.split("\t"); //key value split
+                //we take the key and assing the bloom filter to the corresponding entry
+                int i = Integer.parseInt(inputs[0]);
+                String[] bfArray = inputs[1].split(" ");
+                for(int j = 0; j < bfArray.length; j++) {
+                    bloomFilter[i-1][j] = Integer.parseInt(bfArray[j]);
+                }
+                // be sure to read the next line otherwise we get an infinite loop
+                line = bloomFilterBr.readLine();
+            }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        finally
+        {
+            // close out the BufferedReader
+            bloomFilterBr.close();
+        }
+
 
         try
         {
@@ -113,7 +128,7 @@ public class BloomFilterTest
                 String[] inputs = line.split("\t");
                 String movie_name = inputs[0]; //movie id
                 double rate = Double.parseDouble(inputs[1]); //take the rating
-                int i = (int) Math.round((rate)); //round the rating
+                int rating = (int) Math.round((rate)); //round the rating
                 Boolean positive;
                 for(int l = 0; l < bloomFilter.length; l++)
                 {
@@ -122,17 +137,17 @@ public class BloomFilterTest
                     positive = true;
                     for (int j = 0; j < k; j++)
                     {
-                        //take the hash value for chekcking the elements
-                        int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), j) % m[i] + m[i]) % m[i];
+                        //take the hash value for checking the elements
+                        int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), j) % m[rating] + m[rating]) % m[rating];
 
-                        String[] elements = bloomFilter[l].split(" ");
+                        //String[] elements = bloomFilter[l].split(" ");
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
-                        if(elements.length < pos){ //out of bounds
+                        if(bloomFilter[rating].length < pos){ //out of bounds
                             trueNegatives[l]++;
                             positive = false;
                             break;
                         }
-                        else if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
+                        else if (bloomFilter[rating][pos] == 0 && l != rating - 1)
                         {
                             trueNegatives[l]++;
                             positive = false;
@@ -140,7 +155,7 @@ public class BloomFilterTest
                         }
                     }
                     //if the element is in the filter but it shouldn't be there is a false positive
-                    if(positive && l != i -1)
+                    if(positive && l != rating -1)
                     {
                         falsePositives[l]++;
                     }
