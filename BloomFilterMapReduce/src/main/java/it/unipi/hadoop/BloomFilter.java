@@ -179,7 +179,9 @@ public class BloomFilter
             // close out the BufferedReader
             bloomFilterBr.close();
         }
-
+        for(int i = 1; i < bloomFilter.length + 1; i++){
+            System.out.println("Filter number " + i + " :" + bloomFilter[i]);
+        }
         try
         {
             String line;
@@ -199,6 +201,7 @@ public class BloomFilter
                     {
                         //take the hash value for chekcking the elements
                         int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
+                        System.out.println("Hash value: " + pos);
                         String[] elements = bloomFilter[l].split(" ");
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
                         if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
