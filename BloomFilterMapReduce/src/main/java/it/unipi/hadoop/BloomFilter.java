@@ -296,6 +296,17 @@ public class BloomFilter
             super.set(values);
         }
 
+        public int getElemAt(int pos){
+            Writable[] tmp = super.get();
+            IntWritable elem = (IntWritable)tmp[pos];
+            return elem.get();
+        }
+
+        public int getLen(){
+            Writable[] tmp = super.get();
+            return tmp.length;
+        }
+
         @Override
         public String toString()
         {

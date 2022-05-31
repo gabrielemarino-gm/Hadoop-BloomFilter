@@ -115,12 +115,13 @@ public class BloomFilterMR
             
             for(IntArrayWritable arr: values)
             {
-                
+                int[] intArray = new int[arr.get().length];
+                for(int i = 0; i < intArray.length; i++){
+                    intArray[i] = arr.getElemAt(i);
+                }
                 for(int j=0; j<arr.get().length; j++)
                 {
-                    IntWritable value = new IntWritable();
-                    value = arr.get()[j];
-                    int pos = value.get();
+                    int pos = intArray[j];
                     bloomFilter[pos] = 1;
                 }
             }
