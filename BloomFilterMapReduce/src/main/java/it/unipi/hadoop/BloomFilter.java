@@ -49,7 +49,6 @@ public class BloomFilter
             System.exit(-1);
 
         boolean finalStatus = !bloomFilterJob(conf, "tmp1/part-r-00000", otherArgs[0], otherArgs[1], otherArgs[2]);
-        //removeDirectory(conf, "tmp1");
 
         // TIME
         long end = System.currentTimeMillis(); //stoppage time of the execution
@@ -151,7 +150,7 @@ public class BloomFilter
     }
 
     //launches the test of the false positive rates of the bloom filter constructed in the bloomFilterJob
-    private static void testJob(Configuration conf, String inDataPath, String inBfPath) throws IOException
+    /*private static void testJob(Configuration conf, String inDataPath, String inBfPath) throws IOException
     {
         FileSystem hdfs = FileSystem.get(conf);
         double falsePositives[] = new double[10];
@@ -196,8 +195,7 @@ public class BloomFilter
                 Boolean positive;
                 for(int l = 0; l < bloomFilter.length; l++)
                 {
-                    /*int nbf = l+1;
-                    System.out.println("Bloom Filter n°: " + nbf);*/
+                
                     positive = true;
                     for (int j = 0; j < k; j++)
                     {
@@ -244,7 +242,7 @@ public class BloomFilter
         }
         
         
-    }
+    }*/
     
     //reads the values of m from the ouptut file of the configuration job
     private static int[] readM(Configuration conf, String pathString, String pattern) throws Exception
