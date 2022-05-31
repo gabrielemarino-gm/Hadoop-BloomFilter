@@ -116,12 +116,13 @@ public class BloomFilterMR
             for(IntArrayWritable arr: values)
             {
                 //we take an array of integers from the IntArrayWritable
-                int[] intArray = new int[arr.getLen()];
-                for(int i = 0; i < intArray.length; i++){
+                //int[] intArray = new int[arr.getLen()];
+                //for(int i = 0; i < intArray.length; i++){
+                for(int i = 0; i < arr.getLen(); i++){
                     //make a deep copy
-                    intArray[i] = arr.getElemAt(i);
+                    //intArray[i] = arr.getElemAt(i);
                     //take the position of the bloom filter element to set
-                    int pos = intArray[i];
+                    int pos = arr.getElemAt(i); //TODO: test!
                     bloomFilter[pos] = 1;
                 }
             }

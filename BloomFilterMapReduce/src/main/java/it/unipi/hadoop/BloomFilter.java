@@ -151,7 +151,6 @@ public class BloomFilter
     //launches the test of the false positive rates of the bloom filter constructed in the bloomFilterJob
     private static void testJob(Configuration conf, String inDataPath, String inBfPath) throws IOException
     {
-        // TODO 30/05/2022: Test the bloom filter creation, then get the bloom filters and calculate the false postive rates
         FileSystem hdfs = FileSystem.get(conf);
         double falsePositives[] = new double[10];
         double trueNegatives [] = new double[10];
@@ -188,12 +187,12 @@ public class BloomFilter
             {
                 String[] inputs = line.split("\t");
                 String movie_name = inputs[0]; //movie id
-                // TODO 30/05/2022: Apply the hash functions to find the position of the element in the filter
                 double rate = Double.parseDouble(inputs[1]);
                 int i = (int) Math.round((rate));
                 for (int j = 0; j < k; j++)
                 {
                     int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
+                    // TODO 31/05/2022: test if the element is in the bloom filter
                     /*
                     if not filters[i][position] and i != row[1] - 1:  # true negative for the i-th filter
                     true_negatives[i] += 1
