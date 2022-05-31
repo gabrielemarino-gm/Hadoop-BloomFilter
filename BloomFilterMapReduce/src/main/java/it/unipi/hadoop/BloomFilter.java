@@ -56,8 +56,8 @@ public class BloomFilter
         end -= start;
         System.out.println("EXECUTION TIME: " + end + " ms");
 
-        String outFile = otherArgs[1] + "/part-r-00000";
-        testJob(conf, otherArgs[0], outFile);
+        //String outFile = otherArgs[1] + "/part-r-00000";
+        //testJob(conf, otherArgs[0], outFile);
 
         if (!finalStatus)
             System.exit(-1);
