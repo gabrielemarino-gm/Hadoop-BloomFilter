@@ -28,6 +28,7 @@ public class BloomFilterMR
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException
         {
+            //we take k from the configuration
             int k = 0;
             try
             {
@@ -42,27 +43,15 @@ public class BloomFilterMR
             String[] inputs = value.toString().split("\t");
             double rate = 0;
             String movie_name = inputs[0];
-            String rating = "";
             
             try
             {
-                //we first take the rating as a string
-                rating = inputs[1];
-                //then we take it also as a double
+                //we take the rating
                 rate = Double.parseDouble(inputs[1]);
             }
             catch(Exception e)
             {
                 System.out.println("Error in parsing the input file");
-            }
-
-            // Maybe useless (Maybe for sure)
-            // check if the value of the rate is equal to the smallest integer value closest to it, it's not infinite and the string doesn't contain ".0";
-            // if the string contains ".0" we consider it as a rating since it's a double
-            if (rate == Math.floor(rate) && !Double.isInfinite(rate) && !rating.endsWith(".0"))
-            {
-                System.out.println("Error in parsing the input file");
-                return;
             }
 
             int index = (int) Math.round((rate));
@@ -90,7 +79,6 @@ public class BloomFilterMR
             
             //set the key as the closest integer to the rating
             outputKey.set(String.valueOf(index));
-
             outputValue.set(hashList);
             context.write(outputKey, outputValue); // <vote, hashList>
         }
@@ -105,8 +93,6 @@ public class BloomFilterMR
 
             //take the m value from the configuration based on the key
             int m = 0;
-
-            // test
             try 
             {
                 m = Integer.parseInt(context.getConfiguration().get("m_" + key.toString()));
@@ -126,17 +112,43 @@ public class BloomFilterMR
             
             // take all the hash values arrays in input and for each value write 1 in the Bloom Filter
             // in the position determined by the value
-            for(IntArrayWritable arr : values)
+            
+            for(IntArrayWritable arr: values)
             {
-                IntWritable[] intArray = arr.get();
-                for(int g=0; g<intArray.length; g++)
+                
+                for(int j=0; j<intArray.length; j++)
                 {
                     IntWritable value = new IntWritable();
-                    value = intArray[g];
+                    value = arr.get()[j];
                     int pos = value.get();
                     bloomFilter[pos] = 1;
                 }
             }
+
+            /*for(IntArrayWritable arr: values)
+            {
+                IntWritable[] intArray = arr.get();
+                for(int j=0; j<intArray.length; j++)
+                {
+                    IntWritable value = new IntWritable();
+                    value = intArray[j];
+                    int pos = value.get();
+                    bloomFilter[pos] = 1;
+                }
+            }*/
+
+            /*for(int j = 0; j < values.length; j++)
+            {
+                IntWritable[] intArray = new IntWritable[values.length]; 
+                for(int k=0; k<intArray.length; k++)
+                {
+                    intArray[k] = values[j][k];
+                    IntWritable value = new IntWritable();
+                    value = intArray[k];
+                    int pos = value.get();
+                    bloomFilter[pos] = 1;
+                }
+            }*/
 
             result.set(bloomFilter);
             context.write(key, result); // <vote, bloomFilter>

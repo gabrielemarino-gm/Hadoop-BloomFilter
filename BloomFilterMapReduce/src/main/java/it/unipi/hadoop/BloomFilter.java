@@ -66,6 +66,7 @@ public class BloomFilter
 
     private static boolean constructionJob(Configuration conf, String inPath, String outPath, String fpr) throws Exception
     {
+        //extract p and set it to the configuration
         p = Double.parseDouble(fpr);
         conf.setDouble("p", p);
         Job job = Job.getInstance(conf, "ConstructionMR");
@@ -89,6 +90,8 @@ public class BloomFilter
 
         // FileInputFormat.addInputPath(job, new Path(inPath));
         NLineInputFormat.addInputPath(job, new Path(inPath));
+        //we set as number of lines to give to the mappers the total number of lines of the dataset
+        //divided by the number of nodes of the cluster
         job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", 311782);
         FileOutputFormat.setOutputPath(job, new Path(outPath));
 
@@ -97,6 +100,7 @@ public class BloomFilter
 
     private static boolean bloomFilterJob(Configuration conf, String inDataPath, String inPath, String outPath, String fpr) throws Exception
     {
+        //call readM to take all the values of m obtained with the Constructor
         m = readM(conf, inDataPath, "");
         conf.setInt("m_1", m[0]);
         conf.setInt("m_2", m[1]);
@@ -108,44 +112,10 @@ public class BloomFilter
         conf.setInt("m_8", m[7]);
         conf.setInt("m_9", m[8]);
         conf.setInt("m_10", m[9]);
+        //compute k and set it to the configuration
         double nhash = (-1*Math.log(Double.parseDouble(fpr))/(Math.log(2)));
         int k = (int) Math.ceil(nhash);
-        System.out.println("TEST k: " + k);
         conf.setInt("k", k);
-
-        //  ------------------------------- TEST --------------------------- //
-        /*System.out.println();
-        System.out.println();
-
-        System.out.println("TEST HASH");
-        int mario = 0;
-        int index = (int) Math.round((7.5));
-
-        try
-        {
-            mario = Integer.parseInt(conf.get("m_" + index));
-        }
-        catch (Exception e)
-        {
-            System.out.println("Error in parsing the input file");
-        }
-
-        System.out.println("Trovata per 8, m = " + mario);
-        String movie_name = "tt123456789";
-        // take m from the configuration
-        Hash h = new MurmurHash();
-
-        System.out.println("Lunghezza nome :" + movie_name.length());
-        System.out.println("Lunghezza byte :" + movie_name.getBytes(StandardCharsets.UTF_8).length);
-        int myHash = h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), 1);
-        System.out.println("Senza modulo h(" + movie_name + ") = " + myHash);
-
-        // (a % b + b) % b
-        myHash = (myHash%mario + mario) % mario;
-        System.out.println("h(" + movie_name + ") = " + myHash);
-        System.out.println();
-        System.out.println();*/
-        //  ------------------------------- END TEST --------------------------- //
 
         Job job = Job.getInstance(conf, "BloomFilterMR");
         job.setJarByClass(BloomFilter.class);
@@ -168,6 +138,8 @@ public class BloomFilter
 
         //FileInputFormat.addInputPath(job, new Path(inPath));
         NLineInputFormat.addInputPath(job, new Path(inPath));
+        //we set as number of lines to give to the mappers the total number of lines of the dataset
+        //divided by the number of nodes of the cluster
         job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", 311782);
         FileOutputFormat.setOutputPath(job, new Path(outPath));
 
@@ -309,19 +281,6 @@ public class BloomFilter
             }
             //return (IntWritable[]) super.get();
         }
-
-
-        /*public int[] getData()
-        {
-            IntWritable[] data = (IntWritable[]) super.get();
-            int[] result = new int[data.length];
-            for(int i = 0; i < data.length; i++)
-            {
-                result[i] = data[i].get();
-            }
-
-            return result;
-        }*/
 
         public void set(int[] array)
         {
