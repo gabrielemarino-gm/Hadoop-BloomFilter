@@ -23,13 +23,21 @@ public class BloomFilterMR
         // reuse Hadoop's Writable objects
         private final Text outputKey = new Text();
         private final IntArrayWritable outputValue = new IntArrayWritable();
-        private final int k = 7;
         private Hash h = new MurmurHash();
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException
         {
-
+            int k = 0;
+            try
+            {
+                k = Integer.parseInt(context.getConfiguration().get("k"));
+            }
+            catch (Exception e)
+            {
+                System.out.println("Error in parsing the input file");
+            }
+            
             // take the input values from dataset and split them, they are separated by spaces
             String[] inputs = value.toString().split("\t");
             double rate = 0;

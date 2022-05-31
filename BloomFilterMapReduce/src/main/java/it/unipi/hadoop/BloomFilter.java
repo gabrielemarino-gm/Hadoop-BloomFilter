@@ -28,8 +28,8 @@ import java.nio.charset.StandardCharsets;
 public class BloomFilter
 {
     private static final int NUM_BLOOM_FILTERS = 10;
-    private static final int k = 7;
-
+    private static int k;
+    private static double p;
     private static int[] m;
 
     public static void main(String[] args) throws Exception
@@ -39,16 +39,16 @@ public class BloomFilter
         Configuration conf = new Configuration();
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 
-        if (otherArgs.length != 2)
+        if (otherArgs.length != 3)
         {
-            System.err.println("Usage: BloomFilter <input path> <output path> ");
+            System.err.println("Usage: BloomFilter <input path> <output path> <false positive rate>");
             System.exit(-1);
         }
 
-        if (!constructionJob(conf, otherArgs[0], "tmp1")) // Here we wait for the execution of the first MapReduce algorithm
+        if (!constructionJob(conf, otherArgs[0], "tmp1", otherArgs[2])) // Here we wait for the execution of the first MapReduce algorithm
             System.exit(-1);
 
-        boolean finalStatus = !bloomFilterJob(conf, "tmp1/part-r-00000", otherArgs[0], otherArgs[1]);
+        boolean finalStatus = !bloomFilterJob(conf, "tmp1/part-r-00000", otherArgs[0], otherArgs[1], otherArgs[2]);
         //removeDirectory(conf, "tmp1");
 
         // TIME
@@ -64,8 +64,10 @@ public class BloomFilter
 
     }
 
-    private static boolean constructionJob(Configuration conf, String inPath, String outPath) throws Exception
+    private static boolean constructionJob(Configuration conf, String inPath, String outPath, String fpr) throws Exception
     {
+        p = Double.parseDouble(fpr);
+        conf.setDouble("p", p);
         Job job = Job.getInstance(conf, "ConstructionMR");
         job.setJarByClass(BloomFilter.class);
 
@@ -93,7 +95,7 @@ public class BloomFilter
         return job.waitForCompletion(true);
     }
 
-    private static boolean bloomFilterJob(Configuration conf, String inDataPath, String inPath, String outPath) throws Exception
+    private static boolean bloomFilterJob(Configuration conf, String inDataPath, String inPath, String outPath, String fpr) throws Exception
     {
         m = readM(conf, inDataPath, "");
         conf.setInt("m_1", m[0]);
@@ -106,6 +108,10 @@ public class BloomFilter
         conf.setInt("m_8", m[7]);
         conf.setInt("m_9", m[8]);
         conf.setInt("m_10", m[9]);
+        double nhash = (-1*Math.log(Double.parseDouble(fpr))/(Math.log(2)));
+        int k = Math.ceil(nhash);
+        System.out.println("TEST k: " + k);
+        conf.setInt("k", k);
 
         //  ------------------------------- TEST --------------------------- //
         /*System.out.println();

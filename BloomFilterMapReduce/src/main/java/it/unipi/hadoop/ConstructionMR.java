@@ -20,11 +20,25 @@ public class ConstructionMR {
         //      emit(voto, 1)
 
         private final static IntWritable one = new IntWritable(1);
-        private final Text word = new Text();
+        private final Text keyWord = new Text();
 
         public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException
         {
-            final StringTokenizer itr = new StringTokenizer(value.toString());
+            String[] inputs = value.toString().split("\t");
+            double rate = 0;
+            try
+            {
+                //we take the rating
+                rate = Double.parseDouble(inputs[1]);
+            }
+            catch(Exception e)
+            {
+                System.out.println("Error in parsing the input file");
+            }
+            keyWord.set(String.valueOf((int) Math.round((rate))));
+            context.write(keyWord, one);
+
+            /*final StringTokenizer itr = new StringTokenizer(value.toString());
 
             while (itr.hasMoreTokens())
             {
@@ -52,7 +66,7 @@ public class ConstructionMR {
                 {
                     System.out.println("The token is a movie ID!, Exception: " + e.toString());
                 }
-            }
+            }*/
         }
     }
 
@@ -61,11 +75,19 @@ public class ConstructionMR {
         // <voto, [1, 1, ..., 1]>
         // Somma
         // Calcolare m
-        double p = 0.01;
         private final IntWritable result = new IntWritable();
 
         public void reduce(final Text key, final Iterable<IntWritable> values, final Context context) throws IOException, InterruptedException
         {
+            try
+            {
+                p = Double.parseDouble(context.getConfiguration().get("p"));
+            }
+            catch (Exception e)
+            {
+                System.out.println("Error in parsing the input file");
+            }
+            
             //Compute n summing all the ones in the reducer input list
             int n = 0;
             for (final IntWritable val : values)
