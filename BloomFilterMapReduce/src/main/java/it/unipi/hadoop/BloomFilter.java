@@ -203,6 +203,7 @@ public class BloomFilter
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
                         if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
                         {
+                            System.out.println("Elem negative: " + elements[pos] + ", filter: " + l + ", rate: " + i);
                             trueNegatives[l]++;
                             positive = false;
                             break;
@@ -211,6 +212,7 @@ public class BloomFilter
                     //if the element is in the filter but iit shouldn't be there is a false positive
                     if(positive && l != i -1)
                     {
+                        System.out.println("Elem positive, filter: " + l + ", rate: " + i);
                         falsePositives[l]++;
                     }
                 }
