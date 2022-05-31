@@ -179,9 +179,7 @@ public class BloomFilter
             // close out the BufferedReader
             bloomFilterBr.close();
         }
-        for(int i = 1; i < bloomFilter.length + 1; i++){
-            System.out.println("Filter number " + i + " :" + bloomFilter[i]);
-        }
+        
         try
         {
             String line;
@@ -206,7 +204,7 @@ public class BloomFilter
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
                         if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
                         {
-                            System.out.println("Elem negative: " + elements[pos] + ", filter: " + l + ", rate: " + i);
+                            System.out.println("Elem negative filter: " + l + ", rate: " + i + "\n");
                             trueNegatives[l]++;
                             positive = false;
                             break;
@@ -215,7 +213,7 @@ public class BloomFilter
                     //if the element is in the filter but iit shouldn't be there is a false positive
                     if(positive && l != i -1)
                     {
-                        System.out.println("Elem positive, filter: " + l + ", rate: " + i);
+                        System.out.println("Elem positive, filter: " + l + ", rate: " + i +"\n");
                         falsePositives[l]++;
                     }
                 }
