@@ -117,8 +117,8 @@ public class BloomFilterMR
             {
                 for(int i = 0; i < arr.getLen(); i++){
                     //take the position of the bloom filter element to set
-                    int pos = arr.getElemAt(i); //for each array we take each element and set the value to the bloom filter
-                    bloomFilter[pos] = 1;
+                    //int pos = arr.getElemAt(i); 
+                    bloomFilter[arr.getElemAt(i)] = 1; //for each array we take each element and set the value to the bloom filter
                 }
             }
 

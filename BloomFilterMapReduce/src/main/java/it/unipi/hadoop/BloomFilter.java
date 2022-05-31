@@ -60,7 +60,7 @@ public class BloomFilter
             System.exit(-1);
 
         // System.out.println("TESTING THE FALSE POSITIVE RATES");
-        // testJob(conf, otherArgs[0], otherArgs[1]);
+        testJob(conf, otherArgs[0], otherArgs[1]);
 
     }
 
@@ -154,8 +154,8 @@ public class BloomFilter
         FileSystem hdfs = FileSystem.get(conf);
         double falsePositives[] = new double[10];
         double trueNegatives [] = new double[10];
-        BufferedReader dataBr = new BufferedReader(new InputStreamReader(hdfs.open(new Path(inDataPath))));
-        BufferedReader bloomFilterBr= new BufferedReader(new InputStreamReader(hdfs.open(new Path(inBfPath))));
+        BufferedReader dataBr = new BufferedReader(new InputStreamReader(hdfs.open(new Path(inDataPath)))); //to read the dataset
+        BufferedReader bloomFilterBr= new BufferedReader(new InputStreamReader(hdfs.open(new Path(inBfPath)))); //to read the filters
         Hash h  = new MurmurHash();
         String[] bloomFilter = new String[10]; //to store the bloom filters
         try
@@ -187,16 +187,18 @@ public class BloomFilter
             {
                 String[] inputs = line.split("\t");
                 String movie_name = inputs[0]; //movie id
-                double rate = Double.parseDouble(inputs[1]);
-                int i = (int) Math.round((rate));
+                double rate = Double.parseDouble(inputs[1]); //take the rating
+                int i = (int) Math.round((rate)); //round the rating
                 Boolean positive;
                 for(int l = 0; l < bloomFilter.length; l++)
                 {
                     positive = true;
                     for (int j = 0; j < k; j++)
                     {
+                        //take the hash value for chekcking the elements
                         int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
                         String[] elements = bloomFilter[l].split(" ");
+                        //if there is not an element but it's not supposed to be there, then the element is a true negative
                         if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
                         {
                             trueNegatives[l]++;
@@ -204,20 +206,13 @@ public class BloomFilter
                             break;
                         }
                     }
+                    //if the element is in the filter but iit shouldn't be there is a false positive
                     if(positive && l != i -1)
                     {
                         falsePositives[l]++;
                     }
                 }
-            
-                    /*
-                    if not filters[i][position] and i != row[1] - 1:  # true negative for the i-th filter
-                    true_negatives[i] += 1
-                    positive = False
-                    break
-                    if positive and i != row[1] - 1:  # false positive for the i-th filter
-                        false_positives[i] += 1
-                     */
+
                 // be sure to read the next line otherwise we get an infinite loop
                 line = dataBr.readLine();
             }
@@ -227,6 +222,16 @@ public class BloomFilter
             // close out the BufferedReader
             dataBr.close();
         }
+        
+        System.out.println("\n\n**********RESULTS**********\n\n");
+        for(int i = 0; i < 10; i++)
+        {
+            //compute the false positive rate
+            fp_rate = falsePositives[i]/(falsePositives[i]+trueNegatives[i]);
+            System.out.println("Rate " + i + ": False positives =  " + falsePositives[i] + ", FPR =  " + fp_rate  + "\n");
+        }
+        
+        
     }
     
     //reads the values of m from the ouptut file of the configuration job
