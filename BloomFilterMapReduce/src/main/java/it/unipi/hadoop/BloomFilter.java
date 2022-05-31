@@ -56,11 +56,12 @@ public class BloomFilter
         end -= start;
         System.out.println("EXECUTION TIME: " + end + " ms");
 
+        testJob(conf, otherArgs[0], otherArgs[1]);
+
         if (!finalStatus)
             System.exit(-1);
 
         // System.out.println("TESTING THE FALSE POSITIVE RATES");
-        testJob(conf, otherArgs[0], otherArgs[1]);
 
     }
 
@@ -227,7 +228,7 @@ public class BloomFilter
         for(int i = 0; i < 10; i++)
         {
             //compute the false positive rate
-            fp_rate = falsePositives[i]/(falsePositives[i]+trueNegatives[i]);
+            double fp_rate = falsePositives[i] / (falsePositives[i] + trueNegatives[i]);
             System.out.println("Rate " + i + ": False positives =  " + falsePositives[i] + ", FPR =  " + fp_rate  + "\n");
         }
         
