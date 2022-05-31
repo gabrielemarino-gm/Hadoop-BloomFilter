@@ -49,7 +49,7 @@ public class BloomFilter
             System.exit(-1);
 
         boolean finalStatus = !bloomFilterJob(conf, "tmp1/part-r-00000", otherArgs[0], otherArgs[1], otherArgs[2]);
-        removeDirectory(conf, "tmp1");
+        //removeDirectory(conf, "tmp1");
 
         // TIME
         long end = System.currentTimeMillis(); //stoppage time of the execution
