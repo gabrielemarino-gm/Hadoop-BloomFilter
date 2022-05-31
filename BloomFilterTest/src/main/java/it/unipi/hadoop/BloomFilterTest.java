@@ -26,9 +26,9 @@ public class BloomFilterTest
 
     public static void main(String[] args) throws IOException
     {
-        // Variable
-        final double p = 0.01;
-        final int k = 7;
+        // Variables
+        final double p = 0.01; //not used
+        final int k = 7; //number of hash functions to use with the given bloom filters
 
         double falsePositives[] = new double[10];
         double trueNegatives [] = new double[10];
@@ -79,8 +79,9 @@ public class BloomFilterTest
             mBR.close();
         }
 
-        Hash h  = new MurmurHash();
+        Hash h  = new MurmurHash(); //hash function family to use for the test
         int[][] bloomFilter = new int[10][]; //to store the bloom filters
+        //for each filter we set the length to the value specified by m
         for (int i = 0; i < bloomFilter.length; ++i) {
             int tmp = m[i];
             bloomFilter[i] = new int[tmp];
@@ -121,35 +122,29 @@ public class BloomFilterTest
             while (line != null)
             {
                 cont++;
-                //System.out.println("Entry n° " + cont);
-                String[] inputs = line.split("\t");
+                String[] inputs = line.split("\t"); //take the values from the input entry
                 String movie_name = inputs[0]; //movie id
                 double rate = Double.parseDouble(inputs[1]); //take the rating
                 int rating = (int) Math.round((rate)); //round the rating
                 Boolean positive;
                 for(int l = 0; l < bloomFilter.length; l++)
                 {
-                    positive = true;
+                    positive = true; //initialize to true
                     for (int j = 0; j < k; j++)
                     {
                         //take the hash value for checking the elements
                         int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), j) % m[l] + m[l]) % m[l];
 
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
-                        if(bloomFilter[l].length < pos){ //out of bounds
-                            //trueNegatives[l]++;
-                            positive = false;
-                            break;
-                        }
-                        else if ((bloomFilter[l][pos] == 0) && (l != rating - 1))
+                        if ((bloomFilter[l][pos] == 0) && (l != rating - 1))
                         {
                             trueNegatives[l]++;
-                            positive = false;
+                            positive = false; //set to false in case we have a negative
                             break;
                         }
                     }
                     //if the element is in the filter but it shouldn't be there is a false positive
-                    if(positive && l != rating -1)
+                    if(positive && l != rating -1) //positive is true if the value was not 0
                     {
                         falsePositives[l]++;
                     }
