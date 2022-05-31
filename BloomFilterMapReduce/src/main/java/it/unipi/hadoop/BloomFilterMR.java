@@ -116,7 +116,7 @@ public class BloomFilterMR
             for(IntArrayWritable arr: values)
             {
                 
-                for(int j=0; j<intArray.length; j++)
+                for(int j=0; j<arr.get().length; j++)
                 {
                     IntWritable value = new IntWritable();
                     value = arr.get()[j];
