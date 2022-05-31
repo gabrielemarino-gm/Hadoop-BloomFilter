@@ -30,6 +30,8 @@ public class BloomFilter
     private static final int NUM_BLOOM_FILTERS = 10;
     private static final int k = 7;
 
+    private static int[] m;
+
     public static void main(String[] args) throws Exception
     {
         long start = System.currentTimeMillis();
@@ -58,7 +60,7 @@ public class BloomFilter
             System.exit(-1);
 
         // System.out.println("TESTING THE FALSE POSITIVE RATES");
-        // testJob(conf, otherArgs[1]);
+        // testJob(conf, otherArgs[0], otherArgs[1]);
 
     }
 
@@ -93,7 +95,7 @@ public class BloomFilter
 
     private static boolean bloomFilterJob(Configuration conf, String inDataPath, String inPath, String outPath) throws Exception
     {
-        int[] m = readM(conf, inDataPath, "");
+        m = readM(conf, inDataPath, "");
         conf.setInt("m_1", m[0]);
         conf.setInt("m_2", m[1]);
         conf.setInt("m_3", m[2]);
@@ -139,8 +141,6 @@ public class BloomFilter
         System.out.println();*/
         //  ------------------------------- END TEST --------------------------- //
 
-
-
         Job job = Job.getInstance(conf, "BloomFilterMR");
         job.setJarByClass(BloomFilter.class);
 
@@ -154,12 +154,9 @@ public class BloomFilter
 
         // define reducer's output key-value
         job.setOutputKeyClass(Text.class);
-        //job.setOutputValueClass(Text.class);
-        //alternative: the output is an array of int
         job.setOutputValueClass(BloomFilter.IntArrayWritable.class);
 
         // define I/O
-        //job.setInputFormatClass(TextInputFormat.class);
         job.setInputFormatClass(NLineInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
@@ -172,37 +169,65 @@ public class BloomFilter
     }
 
     
-    private static void testJob(Configuration conf, String inDataPath) throws IOException
+    private static void testJob(Configuration conf, String inDataPath, String inBfPath) throws IOException
     {
         // TODO 30/05/2022: Test the bloom filter creation, then get the bloom filters and calculate the false postive rates
         FileSystem hdfs = FileSystem.get(conf);
         double falsePositives[] = new double[10];
         double trueNegatives [] = new double[10];
-        BufferedReader br = new BufferedReader(new InputStreamReader(hdfs.open(new Path(inDataPath))));
-
+        BufferedReader dataBr = new BufferedReader(new InputStreamReader(hdfs.open(new Path(inDataPath))));
+        BufferedReader bloomFilterBr= new BufferedReader(new InputStreamReader(hdfs.open(new Path(inBfPath))));
+        String[] bloomFilter = new String[10]; //to store the bloom filters
         try
         {
             String line;
-            line = br.readLine();
-
+            line = bloomFilterBr.readLine();
             while (line != null)
             {
-                String[] inputs = line.split("\t");
+                String[] inputs = line.split("\t"); //key value split
+                //we take the key and assing the bloom filter to the corresponding entry
                 int i = Integer.parseInt(inputs[0]);
-                for(int j = 0; j < k; j++)
-                {
-                    // TODO 30/05/2022: Apply the hash functions to find the position of the element in the filter
-
-                }
-
+                bloomFilter[i-1] = inputs[1];
                 // be sure to read the next line otherwise we get an infinite loop
-                line = br.readLine();
+                line = bloomFilterBr.readLine();
             }
         }
         finally
         {
             // close out the BufferedReader
-            br.close();
+            bloomFilterBr.close();
+        }
+        try
+        {
+            String line;
+            line = dataBr.readLine();
+
+            while (line != null)
+            {
+                String[] inputs = line.split("\t");
+                String movie_name = inputs[0]; //movie id
+                // TODO 30/05/2022: Apply the hash functions to find the position of the element in the filter
+                double rate = Double.parseDouble(inputs[1]);
+                int i = (int) Math.round((rate));
+                for (int j = 0; j < k; j++) {
+                    int pos = (MurmurHash.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
+                    /*
+                    if not filters[i][position] and i != row[1] - 1:  # true negative for the i-th filter
+                    true_negatives[i] += 1
+                    positive = False
+                    break
+                    if positive and i != row[1] - 1:  # false positive for the i-th filter
+                        false_positives[i] += 1
+                     */
+                }
+                // be sure to read the next line otherwise we get an infinite loop
+                line = dataBr.readLine();
+            }
+        }
+        finally
+        {
+            // close out the BufferedReader
+            dataBr.close();
         }
     }
     
