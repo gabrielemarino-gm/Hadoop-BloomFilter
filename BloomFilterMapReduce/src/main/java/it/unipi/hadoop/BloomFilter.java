@@ -109,7 +109,7 @@ public class BloomFilter
         conf.setInt("m_9", m[8]);
         conf.setInt("m_10", m[9]);
         double nhash = (-1*Math.log(Double.parseDouble(fpr))/(Math.log(2)));
-        int k = Math.ceil(nhash);
+        int k = (int) Math.ceil(nhash);
         System.out.println("TEST k: " + k);
         conf.setInt("k", k);
 
@@ -204,6 +204,7 @@ public class BloomFilter
             // close out the BufferedReader
             bloomFilterBr.close();
         }
+
         try
         {
             String line;
@@ -216,7 +217,8 @@ public class BloomFilter
                 // TODO 30/05/2022: Apply the hash functions to find the position of the element in the filter
                 double rate = Double.parseDouble(inputs[1]);
                 int i = (int) Math.round((rate));
-                for (int j = 0; j < k; j++) {
+                for (int j = 0; j < k; j++)
+                {
                     int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), i) % m[i] + m[i]) % m[i];
                     /*
                     if not filters[i][position] and i != row[1] - 1:  # true negative for the i-th filter
