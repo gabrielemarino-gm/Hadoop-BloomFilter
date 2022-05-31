@@ -118,13 +118,24 @@ public class BloomFilterMR
                 int[] intArray = new int[arr.get().length];
                 for(int i = 0; i < intArray.length; i++){
                     intArray[i] = arr.getElemAt(i);
+                    int pos = intArray[i];
+                    bloomFilter[pos] = 1;
                 }
-                for(int j=0; j<arr.get().length; j++)
+            }
+
+
+            /*for(IntArrayWritable arr: values)
+            {
+                int[] intArray = new int[arr.get().length];
+                for(int i = 0; i < intArray.length; i++){
+                    intArray[i] = arr.getElemAt(i);
+                }
+                for(int j=0; j<intArray.length; j++)
                 {
                     int pos = intArray[j];
                     bloomFilter[pos] = 1;
                 }
-            }
+            }*/
 
             /*for(IntArrayWritable arr: values)
             {
