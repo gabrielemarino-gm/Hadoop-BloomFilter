@@ -55,8 +55,10 @@ public class BloomFilter
         end -= start;
         System.out.println("EXECUTION TIME: " + end + " ms");
 
-        //String outFile = otherArgs[1] + "/part-r-00000";
-        //testJob(conf, otherArgs[0], outFile);
+        //TEST
+        System.out.println("\nTESTING THE BLOOM FILTERS\n");
+        String outFile = otherArgs[1] + "/part-r-00000";
+        testJob(conf, otherArgs[0], outFile); //TODO 1/06/2022: try the test from the virtual cluster
 
         if (!finalStatus)
             System.exit(-1);
@@ -169,15 +171,22 @@ public class BloomFilter
     }
 
     //launches the test of the false positive rates of the bloom filter constructed in the bloomFilterJob
-    /*private static void testJob(Configuration conf, String inDataPath, String inBfPath) throws IOException
+    private static void testJob(Configuration conf, String inDataPath, String inBfPath) throws IOException
     {
         FileSystem hdfs = FileSystem.get(conf);
         double falsePositives[] = new double[10];
         double trueNegatives [] = new double[10];
         BufferedReader dataBr = new BufferedReader(new InputStreamReader(hdfs.open(new Path(inDataPath)))); //to read the dataset
         BufferedReader bloomFilterBr= new BufferedReader(new InputStreamReader(hdfs.open(new Path(inBfPath)))); //to read the filters
-        Hash h  = new MurmurHash();
-        String[] bloomFilter = new String[10]; //to store the bloom filters
+        Hash h  = new MurmurHash(); //hash function family to use for the test
+        int[][] bloomFilter = new int[10][]; //to store the bloom filters
+        //for each filter we set the length to the value specified by m
+        for (int i = 0; i < bloomFilter.length; ++i) {
+            int tmp = m[i];
+            bloomFilter[i] = new int[tmp];
+        }
+
+        //Otain the bloom filters from the file
         try
         {
             String line;
@@ -187,58 +196,55 @@ public class BloomFilter
                 String[] inputs = line.split("\t"); //key value split
                 //we take the key and assing the bloom filter to the corresponding entry
                 int i = Integer.parseInt(inputs[0]);
-                bloomFilter[i-1] = inputs[1];
+                String[] bfArray = inputs[1].split(" ");
+                for(int j = 0; j < bfArray.length; j++) {
+                    bloomFilter[i-1][j] = Integer.parseInt(bfArray[j]);
+                }
                 // be sure to read the next line otherwise we get an infinite loop
                 line = bloomFilterBr.readLine();
             }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
         }
         finally
         {
             // close out the BufferedReader
             bloomFilterBr.close();
         }
-        
+
         try
         {
             String line;
             line = dataBr.readLine();
-            int cont = 0;
             while (line != null)
             {
-                cont++;
-                System.out.println("Entry n° " + cont);
-                String[] inputs = line.split("\t");
+                String[] inputs = line.split("\t"); //take the values from the input entry
                 String movie_name = inputs[0]; //movie id
                 double rate = Double.parseDouble(inputs[1]); //take the rating
-                int i = (int) Math.round((rate)); //round the rating
+                int rating = (int) Math.round((rate)); //round the rating
                 Boolean positive;
-                for(int l = 0; l < bloomFilter.length; l++)
+                for(int i = 0; i < bloomFilter.length; i++)
                 {
-                
-                    positive = true;
+                    positive = true; //initialize to true
                     for (int j = 0; j < k; j++)
                     {
-                        //take the hash value for chekcking the elements
+                        //take the hash value for checking the elements
                         int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), j) % m[i] + m[i]) % m[i];
-                       
-                        String[] elements = bloomFilter[l].split(" ");
+
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
-                        if(elements.length < pos){ //out of bounds
-                            trueNegatives[l]++;
-                            positive = false;
-                            break;
-                        }
-                        else if (Integer.parseInt(elements[pos]) == 0 && l != i - 1)
+                        if ((bloomFilter[i][pos] == 0) && (i != rating - 1))
                         {
-                            trueNegatives[l]++;
-                            positive = false;
+                            trueNegatives[i]++;
+                            positive = false; //set to false in case we have a negative
                             break;
                         }
                     }
                     //if the element is in the filter but it shouldn't be there is a false positive
-                    if(positive && l != i -1)
+                    if(positive && i != rating -1) //positive is true if the value was not 0
                     {
-                        falsePositives[l]++;
+                        falsePositives[i]++;
                     }
                 }
 
@@ -246,22 +252,26 @@ public class BloomFilter
                 line = dataBr.readLine();
             }
         }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
         finally
         {
             // close out the BufferedReader
             dataBr.close();
         }
-        
+
         System.out.println("\n\n**********RESULTS**********\n\n");
         for(int i = 0; i < 10; i++)
         {
             //compute the false positive rate
             double fp_rate = falsePositives[i] / (falsePositives[i] + trueNegatives[i]);
-            System.out.println("Rate " + i + ": False positives =  " + falsePositives[i] + ", FPR =  " + fp_rate  + "\n");
+            int j = i + 1;
+            System.out.println("Rate " + j + ": False positives =  " + falsePositives[i] + ", FPR =  " + fp_rate  + "\n");
         }
-        
-        
-    }*/
+
+    }
     
     //reads the values of m from the ouptut file of the configuration job
     /**

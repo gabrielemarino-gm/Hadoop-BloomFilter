@@ -5,13 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="20d12138-c7de-4d60-8644-3eb26edaec07" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BloomFilterMapReduce.iml" beforeDir="false" afterPath="$PROJECT_DIR$/BloomFilterMapReduce.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilterMR.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilterMR.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/ConstructionMR.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/ConstructionMR.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../BloomFilterTest/src/main/java/it/unipi/hadoop/BloomFilterTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../BloomFilterTest/src/main/java/it/unipi/hadoop/BloomFilterTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../BloomFilterTest/target/classes/it/unipi/hadoop/BloomFilterTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/../BloomFilterTest/target/classes/it/unipi/hadoop/BloomFilterTest.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,14 +33,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/stefa/OneDrive/Documenti/GitHub/Hadoop-BloomFilter/BloomFilterMapReduce"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/stefa/OneDrive/Documenti/GitHub/Hadoop-BloomFilter/BloomFilterMapReduce&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -97,7 +93,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1653988765974</updated>
-      <workItem from="1654031362853" duration="2136000" />
+      <workItem from="1654031362853" duration="2344000" />
+      <workItem from="1654066242579" duration="360000" />
     </task>
     <servers />
   </component>
