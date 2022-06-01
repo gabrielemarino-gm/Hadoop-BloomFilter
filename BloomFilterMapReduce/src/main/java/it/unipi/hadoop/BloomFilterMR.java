@@ -27,8 +27,9 @@ public class BloomFilterMR
 
         /**
          * Map function that takes in input a record of the dataset and retrieves the id of the movie
-         * and the rating of the movie; computes the hash functions on the movie ids for a number of times
-         * specified by the parameter k, taken from the configuration, and puts them in an array
+         * and the rating of the movie; rounds the rating to its closest integer and sends it as a key;
+         * computes the hash functions on the movie ids for a number of times specified by the parameter k,
+         * taken from the configuration, and puts them in an array
          * @param  key      the key of the input of the map function
          * @param  value    < movie_id, rating, number of votes>
          * @param  context  the context which includes the data configuration of the job
@@ -98,7 +99,8 @@ public class BloomFilterMR
         private final IntArrayWritable result = new IntArrayWritable();
 
         /**
-         * Reduce function
+         * Reduce function that given the hash values for a given key constructs a bloom filter for that key
+         * setting its values to 1 in the positions given by the hash values
          * @param  key      the key of the input of the reduce function, which is the rating
          * @param  values   arrays containing the hash values of the movies relative to the key
          * @param  context  the context which includes the data configuration of the job
