@@ -54,6 +54,6 @@ The algorithm generates one output folderr named as indicated in the launch comm
 
 For show the output run the comand:
 
-` hadoop fs -cat <outputDirectory>\part-r-00000 | haed`
+` hadoop fs -cat <outputDirectory>\part-r-00000 | head`
 
 After running on the screen, you will be able to see the false positive rate calculated for each bloom filter.
