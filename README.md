@@ -56,4 +56,4 @@ For show the output run the comand:
 
 ` hadoop fs -cat <outputDirectory>\part-r-00000 | haed`
 
-After running in your sreen you can see the False Positive Rate computed for each bloom filter.
+After running on the screen, you will be able to see the false positive rate calculated for each bloom filter.
