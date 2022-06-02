@@ -133,9 +133,9 @@ public class BloomFilterMR
             
             for(IntArrayWritable arr: values)
             {
-                for(int i = 0; i < arr.getLen(); i++){
+                int len = arr.getLen();
+                for(int i = 0; i < len; i++){
                     //take the position of the bloom filter element to set
-                    //int pos = arr.getElemAt(i); 
                     bloomFilter[arr.getElemAt(i)] = 1; //for each array we take each element and set the value to the bloom filter
                 }
             }

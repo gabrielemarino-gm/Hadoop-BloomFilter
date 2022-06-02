@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="20d12138-c7de-4d60-8644-3eb26edaec07" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilterMR.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilterMR.java" afterDir="false" />
-    </list>
+    <list default="true" id="20d12138-c7de-4d60-8644-3eb26edaec07" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -93,7 +90,7 @@
       <option name="presentableId" value="Default" />
       <updated>1653988765974</updated>
       <workItem from="1654031362853" duration="2344000" />
-      <workItem from="1654066242579" duration="1443000" />
+      <workItem from="1654066242579" duration="1666000" />
     </task>
     <servers />
   </component>
