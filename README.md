@@ -4,15 +4,19 @@ Implementation of a Bloom Filter using the Hadoop framework in Java. All the doc
 
 ## How to run the algorithm
 Step 1: Create the JAR using Maven,  in the directory named "BloomFilterMapReduce:
+
 ` mvn clean package`
 
 Step 2: Send the file JAR to the Hadoop HDFS using the command scp in Linux:
+
 ` sudo scp target/BloomFilterMapReduce-1.0-SNAPSHOT.jar hadoop@<IP name node VM>:`
 
 Spep 3: Move in the Hadoop user space of the Name Node, using the comand su in Linux
+
 ` su -- hadoop`
 
 Spet 4: Run the file JAR
+
 ` hadoop jar /home/hadoop/BloomFilterMapReduce-1.0-SNAPSHOT.jar it.unipi.hadoop.BloomFilter <inputFile.txt> <outputDirectory> <false positive rate>`
 
 ## The input file
