@@ -1,4 +1,4 @@
-# Bloom Filter - Spark
+# Bloom Filter - Hadoop
 
 Implementation of a Bloom Filter using the Hadoop framework in Java. All the documentation for this project can be found [here](./Documentation)
 
