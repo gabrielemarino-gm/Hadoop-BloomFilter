@@ -303,8 +303,6 @@ public class BloomFilter
                     int i = Integer.parseInt(inputs[0]);
                     //assing to the correct position the m value associated to the rating
                     result[i-1] = Integer.parseInt(inputs[1]);
-                    // System.out.println("Result: " + result[i-1]);
-                    //break;
                 }
 
                 // be sure to read the next line otherwise we get an infinite loop
@@ -400,7 +398,6 @@ public class BloomFilter
 
             sb.setLength(sb.length()-1);
             return sb.toString();
-            //return values[0].toString() + ", " + values[1].toString();
         }
     }
 }
