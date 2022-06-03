@@ -46,9 +46,6 @@ public class ConstructionMR {
 
     public static class ConstructionReducer extends Reducer<Text, IntWritable, Text, IntWritable>
     {
-        // <voto, [1, 1, ..., 1]>
-        // Somma
-        // Calcolare m
         private final IntWritable result = new IntWritable();
 
         /**
