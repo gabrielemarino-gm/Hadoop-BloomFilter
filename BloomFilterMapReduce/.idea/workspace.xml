@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="20d12138-c7de-4d60-8644-3eb26edaec07" name="Changes" comment="" />
+    <list default="true" id="20d12138-c7de-4d60-8644-3eb26edaec07" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilterMR.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/hadoop/BloomFilterMR.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -91,6 +95,15 @@
       <updated>1653988765974</updated>
       <workItem from="1654031362853" duration="2344000" />
       <workItem from="1654066242579" duration="1666000" />
+      <workItem from="1654251214318" duration="188000" />
+      <workItem from="1654271353720" duration="113000" />
+      <workItem from="1654285415714" duration="178000" />
+      <workItem from="1654459466208" duration="141000" />
+      <workItem from="1654528561495" duration="20000" />
+      <workItem from="1654528735270" duration="17000" />
+      <workItem from="1654588407289" duration="31000" />
+      <workItem from="1654627466744" duration="229000" />
+      <workItem from="1654780020329" duration="2361000" />
     </task>
     <servers />
   </component>

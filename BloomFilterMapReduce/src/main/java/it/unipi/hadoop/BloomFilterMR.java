@@ -13,6 +13,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.hash.Hash;
 import org.apache.hadoop.util.hash.MurmurHash;
 import it.unipi.hadoop.BloomFilter.IntArrayWritable;
+import it.unipi.hadoop.BloomFilter.BooleanArrayWritable;
 
 
 public class BloomFilterMR
@@ -94,9 +95,9 @@ public class BloomFilterMR
         }
     }
 
-    public static class BloomFilterReducer extends Reducer<Text, IntArrayWritable, Text, /*Text*/IntArrayWritable>
+    public static class BloomFilterReducer extends Reducer<Text, IntArrayWritable, Text, /*Text*/BooleanArrayWritable>
     {
-        private final IntArrayWritable result = new IntArrayWritable();
+        private final BooleanArrayWritable result = new BooleanArrayWritable();
 
         /**
          * Reduce function that given the hash values for a given key constructs a bloom filter for that key
@@ -120,12 +121,12 @@ public class BloomFilterMR
                 System.out.println("Error in parsing the input file");
             }
             
-            int[] bloomFilter = new int[m];
+            boolean[] bloomFilter = new boolean[m];
 
             // initialize the bloom filter with all zeros
             for(int i=0; i<m; i++)
             {
-                bloomFilter[i] = 0;
+                bloomFilter[i] = false;
             }
             
             // take all the hash values arrays in input and for each value write 1 in the Bloom Filter
@@ -134,9 +135,10 @@ public class BloomFilterMR
             for(IntArrayWritable arr: values)
             {
                 int len = arr.getLen();
-                for(int i = 0; i < len; i++){
+                for(int i = 0; i < len; i++)
+                {
                     //take the position of the bloom filter element to set
-                    bloomFilter[arr.getElemAt(i)] = 1; //for each array we take each element and set the value to the bloom filter
+                    bloomFilter[arr.getElemAt(i)] = true; //for each array we take each element and set the value to the bloom filter
                 }
             }
 

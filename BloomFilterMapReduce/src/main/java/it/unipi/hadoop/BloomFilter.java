@@ -6,10 +6,7 @@ import it.unipi.hadoop.ConstructionMR;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -24,6 +21,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class BloomFilter
 {
@@ -58,7 +57,7 @@ public class BloomFilter
         //TEST
         System.out.println("\nTESTING THE BLOOM FILTERS\n");
         String outFile = otherArgs[1] + "/part-r-00000";
-        testJob(conf, otherArgs[0], outFile); //TODO 1/06/2022: try the test from the virtual cluster
+        testJob(conf, otherArgs[0], outFile);
 
         if (!finalStatus)
             System.exit(-1);
@@ -81,6 +80,7 @@ public class BloomFilter
         //extract p and set it to the configuration
         p = Double.parseDouble(fpr);
         conf.setDouble("p", p);
+        long lines = getFileLines(inPath);
         Job job = Job.getInstance(conf, "ConstructionMR");
         job.setJarByClass(BloomFilter.class);
 
@@ -140,6 +140,7 @@ public class BloomFilter
         double nhash = (-1*Math.log(Double.parseDouble(fpr))/(Math.log(2)));
         k = (int) Math.ceil(nhash);
         conf.setInt("k", k);
+        long lines = getFileLines(inPath);
 
         Job job = Job.getInstance(conf, "BloomFilterMR");
         job.setJarByClass(BloomFilter.class);
@@ -154,7 +155,7 @@ public class BloomFilter
 
         // define reducer's output key-value
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(BloomFilter.IntArrayWritable.class);
+        job.setOutputValueClass(BloomFilter.BooleanArrayWritable.class);
 
         // define I/O
         job.setInputFormatClass(NLineInputFormat.class);
@@ -164,6 +165,7 @@ public class BloomFilter
         NLineInputFormat.addInputPath(job, new Path(inPath));
         //we set as number of lines to give to the mappers the total number of lines of the dataset
         //divided by the number of nodes of the cluster
+        int inputLines = (int) Math.ceil(lines/4);
         job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", 311782);
         FileOutputFormat.setOutputPath(job, new Path(outPath));
 
@@ -179,11 +181,11 @@ public class BloomFilter
         BufferedReader dataBr = new BufferedReader(new InputStreamReader(hdfs.open(new Path(inDataPath)))); //to read the dataset
         BufferedReader bloomFilterBr= new BufferedReader(new InputStreamReader(hdfs.open(new Path(inBfPath)))); //to read the filters
         Hash h  = new MurmurHash(); //hash function family to use for the test
-        int[][] bloomFilter = new int[10][]; //to store the bloom filters
+        boolean[][] bloomFilter = new boolean[10][]; //to store the bloom filters
         //for each filter we set the length to the value specified by m
         for (int i = 0; i < bloomFilter.length; ++i) {
             int tmp = m[i];
-            bloomFilter[i] = new int[tmp];
+            bloomFilter[i] = new boolean[tmp];
         }
 
         //Otain the bloom filters from the file
@@ -194,11 +196,11 @@ public class BloomFilter
             while (line != null)
             {
                 String[] inputs = line.split("\t"); //key value split
-                //we take the key and assing the bloom filter to the corresponding entry
+                //we take the key and assign the bloom filter to the corresponding entry
                 int i = Integer.parseInt(inputs[0]);
                 String[] bfArray = inputs[1].split(" ");
                 for(int j = 0; j < bfArray.length; j++) {
-                    bloomFilter[i-1][j] = Integer.parseInt(bfArray[j]);
+                    bloomFilter[i-1][j] = Boolean.parseBoolean(bfArray[j]);
                 }
                 // be sure to read the next line otherwise we get an infinite loop
                 line = bloomFilterBr.readLine();
@@ -234,7 +236,7 @@ public class BloomFilter
                         int pos = (h.hash(movie_name.getBytes(StandardCharsets.UTF_8), movie_name.length(), j) % m[i] + m[i]) % m[i];
 
                         //if there is not an element but it's not supposed to be there, then the element is a true negative
-                        if ((bloomFilter[i][pos] == 0) && (i != rating - 1))
+                        if ((!bloomFilter[i][pos]) && (i != rating - 1))
                         {
                             trueNegatives[i]++;
                             positive = false; //set to false in case we have a negative
@@ -271,6 +273,19 @@ public class BloomFilter
             System.out.println("Rate " + j + ": False positives =  " + falsePositives[i] + ", FPR =  " + fp_rate  + "\n");
         }
 
+    }
+
+
+    private static long getFileLines(String path){
+        long result = 0;
+        try{
+            result = Files.lines(Paths.get(path)).count();
+
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+        return result;
     }
     
     //reads the values of m from the ouptut file of the configuration job
@@ -400,9 +415,52 @@ public class BloomFilter
             return sb.toString();
         }
     }
+
+    public static class BooleanArrayWritable extends ArrayWritable
+    {
+
+        public BooleanArrayWritable() {
+            super(BooleanWritable.class);
+        }
+
+        //set the object with the values specified from the input array of int
+        public void set(boolean[] array)
+        {
+            BooleanWritable[] values = new BooleanWritable[array.length];
+
+            for (int i=0; i<array.length; i++)
+            {
+                boolean temp = array[i];
+                values[i] = new BooleanWritable();
+                values[i].set(temp);
+            }
+
+            super.set(values);
+        }
+
+        @Override
+        public String toString()
+        {
+            BooleanWritable[] values = (BooleanWritable[]) super.get();
+            if(values.length == 0)
+            {
+                return "";
+            }
+
+            StringBuilder sb  = new StringBuilder();
+            for(BooleanWritable value : values)
+            {
+                boolean i = value.get();
+                sb.append(i).append(" ");
+            }
+
+            sb.setLength(sb.length()-1);
+            return sb.toString();
+        }
+    }
 }
 
 /*
--Contains the main method which calls the drivers of the bloom filters, utility methods for bloom filter consttuction and the false
+-Contains the main method which calls the drivers of the bloom filters, utility methods for bloom filter construction and the false
 positive rate test
 */
