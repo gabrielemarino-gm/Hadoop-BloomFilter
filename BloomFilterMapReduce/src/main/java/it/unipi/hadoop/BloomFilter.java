@@ -104,7 +104,8 @@ public class BloomFilter
         NLineInputFormat.addInputPath(job, new Path(inPath));
         //we set as number of lines to give to the mappers the total number of lines of the dataset
         //divided by the number of nodes of the cluster
-        job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", 311782);
+        int inputLines = (int) Math.ceil(lines/4);
+        job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", inputLines);
         FileOutputFormat.setOutputPath(job, new Path(outPath));
 
         return job.waitForCompletion(true);
@@ -166,7 +167,7 @@ public class BloomFilter
         //we set as number of lines to give to the mappers the total number of lines of the dataset
         //divided by the number of nodes of the cluster
         int inputLines = (int) Math.ceil(lines/4);
-        job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", 311782);
+        job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", inputLines);
         FileOutputFormat.setOutputPath(job, new Path(outPath));
 
         return job.waitForCompletion(true);
