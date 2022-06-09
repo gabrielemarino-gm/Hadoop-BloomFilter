@@ -1,15 +1,10 @@
 package it.unipi.hadoop;
 
-import it.unipi.hadoop.BloomFilterMR;
-import it.unipi.hadoop.ConstructionMR;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
@@ -162,7 +157,6 @@ public class BloomFilter
         job.setInputFormatClass(NLineInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
-        //FileInputFormat.addInputPath(job, new Path(inPath));
         NLineInputFormat.addInputPath(job, new Path(inPath));
         //we set as number of lines to give to the mappers the total number of lines of the dataset
         //divided by the number of nodes of the cluster
@@ -189,7 +183,7 @@ public class BloomFilter
             bloomFilter[i] = new boolean[tmp];
         }
 
-        //Otain the bloom filters from the file
+        //Obtain the bloom filters from the file
         try
         {
             String line;
@@ -277,6 +271,12 @@ public class BloomFilter
     }
 
 
+    /**
+     * Function which counts the number of lines of a file given the path
+     * @param  path        the path of the file to read
+     * @return             number of lines of the file
+     */
+    //returns the number of lines of the file given by the input path
     private static long getFileLines(String path){
         long result = 0;
         try{
@@ -317,7 +317,7 @@ public class BloomFilter
                     String[] inputs = line.split("\t");
                     //take the rating
                     int i = Integer.parseInt(inputs[0]);
-                    //assing to the correct position the m value associated to the rating
+                    //assign to the correct position the m value associated to the rating
                     result[i-1] = Integer.parseInt(inputs[1]);
                 }
 
@@ -343,10 +343,6 @@ public class BloomFilter
             super(IntWritable.class);
         }
 
-        public IntArrayWritable(IntWritable[] values) {
-            super(IntWritable.class, values);
-        }
-
         @Override
         public IntWritable[] get()
         {
@@ -365,7 +361,6 @@ public class BloomFilter
             {
                 return null;
             }
-            //return (IntWritable[]) super.get();
         }
 
         //set the object with the values specified from the input array of int

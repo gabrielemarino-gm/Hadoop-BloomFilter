@@ -2,12 +2,7 @@ package it.unipi.hadoop;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.hash.Hash;
@@ -95,7 +90,7 @@ public class BloomFilterMR
         }
     }
 
-    public static class BloomFilterReducer extends Reducer<Text, IntArrayWritable, Text, /*Text*/BooleanArrayWritable>
+    public static class BloomFilterReducer extends Reducer<Text, IntArrayWritable, Text, BooleanArrayWritable>
     {
         private final BooleanArrayWritable result = new BooleanArrayWritable();
 
