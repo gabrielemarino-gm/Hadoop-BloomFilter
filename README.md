@@ -60,28 +60,28 @@ After running on the screen, you will be able to see the false positive rate cal
 
 ### Output printed by the application
 This is an example of the output printed by the execution of the application, using 0.01 as p value
-<pre><code>***** results *****
+<pre><code>**********RESULTS**********
 
 
-vote 1 --> false positives: 12905, false positive rate: 0.01036900146636402
+Rate 1: False positives =  12905.0, FPR =  0.01036900146636402
 
-vote 2 --> false positives: 12669, false positive rate: 0.01021292444015939
+Rate 2: False positives =  12669.0, FPR =  0.01021292444015939
 
-vote 3 --> false positives: 12165, false positive rate: 0.009895795202186593
+Rate 3: False positives =  12165.0, FPR =  0.009895795202186593
 
-vote 4 --> false positives: 12056, false positive rate: 0.010017041267119161
+Rate 4: False positives =  12056.0, FPR =  0.010017041267119161
 
-vote 5 --> false positives: 11536, false positive rate: 0.010077960925187564
+Rate 5: False positives =  11536.0, FPR =  0.010077960925187564
 
-vote 6 --> false positives: 10552, false positive rate: 0.01026928654151217
+Rate 6: False positives =  10552.0, FPR =  0.01026928654151217
 
-vote 7 --> false positives: 8754, false positive rate: 0.009993994926512057
+Rate 7: False positives =  8754.0, FPR =  0.009993994926512057
 
-vote 8 --> false positives: 8832, false positive rate: 0.010116007262187402
+Rate 8: False positives =  8832.0, FPR =  0.009888485825607954
 
-vote 9 --> false positives: 11305, false positive rate: 0.00996977759591226
+Rate 9: False positives =  11305.0, FPR =  0.00996977759591226
 
-vote 10 --> false positives: 12287, false positive rate: 0.009981291678411832
+Rate 10: False positives =  12287.0, FPR =  0.009981291678411832
 </code></pre>
 
 # The *Spark* implementation
