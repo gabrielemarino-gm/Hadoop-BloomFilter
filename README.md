@@ -57,3 +57,33 @@ For show the output run the comand:
 ` hadoop fs -cat <outputDirectory>\part-r-00000 | head`
 
 After running on the screen, you will be able to see the false positive rate calculated for each bloom filter.
+
+### Output printed by the application
+This is an example of the output printed by the execution of the application, using 0.01 as p value
+<pre><code>***** results *****
+
+
+vote 1 --> false positives: 12905, false positive rate: 0.01036900146636402
+
+vote 2 --> false positives: 12669, false positive rate: 0.01021292444015939
+
+vote 3 --> false positives: 12165, false positive rate: 0.009895795202186593
+
+vote 4 --> false positives: 12056, false positive rate: 0.010017041267119161
+
+vote 5 --> false positives: 11536, false positive rate: 0.010077960925187564
+
+vote 6 --> false positives: 10552, false positive rate: 0.01026928654151217
+
+vote 7 --> false positives: 8754, false positive rate: 0.009993994926512057
+
+vote 8 --> false positives: 8832, false positive rate: 0.010116007262187402
+
+vote 9 --> false positives: 11305, false positive rate: 0.00996977759591226
+
+vote 10 --> false positives: 12287, false positive rate: 0.009981291678411832
+</code></pre>
+
+# The *Spark* implementation
+
+You can find our implementation of the bloom filter using Spark in [this repository](https://github.com/PieTempesti98/bloomfilter_spark)
